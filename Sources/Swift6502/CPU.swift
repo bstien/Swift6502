@@ -57,7 +57,16 @@ class CPU {
         }
     }
 
-    func readFlag(_ flag: StatusFlag) -> UInt8 {
-        (flags & flag.rawValue) > 0 ? 1 : 0
+    func readFlag(_ flag: StatusFlag) -> Bool {
+        (flags & flag.rawValue) > 0
+    }
+}
+
+extension Bool {
+    var value: UInt8 {
+        switch self {
+        case true: 1
+        case false: 0
+        }
     }
 }
