@@ -13,11 +13,12 @@ class CPU {
 
     // MARK: - Private properties
 
-    
+    private let bus: Bus
 
     // MARK: - Init
 
     init(
+        bus: Bus = Bus(),
         pc: UInt16 = 0x0000,
         stackPointer: UInt8 = 0x00,
         acc: UInt8 = 0x00,
@@ -25,6 +26,7 @@ class CPU {
         yReg: UInt8 = 0x00,
         flags: UInt8 = 0x00
     ) {
+        self.bus = bus
         self.pc = pc
         self.stackPointer = stackPointer
         self.acc = acc
@@ -33,10 +35,18 @@ class CPU {
         self.flags = flags
     }
 
-    // MARK: - Internal properties
+    // MARK: - Communicate with bus
 
-    func clock() {}
-    
+    func readByte(_ address: UInt16) -> UInt8 {
+        bus.read(address)
+    }
+
+    func writeByte(_ address: UInt16, data: UInt8) {
+        bus.write(address, data: data)
+    }
+
+    // MARK: - Flags
+
     func setFlag(_ flag: StatusFlag, _ isOn: Bool) {
         if isOn {
             // OR the current flags against the given flag.
