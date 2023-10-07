@@ -10,13 +10,21 @@ let package = Package(
             targets: ["Swift6502"]
         ),
     ],
+    dependencies: [
+        .package(url: "https://github.com/Quick/Quick.git", from: "7.3.0"),
+        .package(url: "https://github.com/Quick/Nimble.git", from: "12.3.0"),
+    ],
     targets: [
         .target(
             name: "Swift6502"
         ),
         .testTarget(
             name: "Swift6502Tests",
-            dependencies: ["Swift6502"]
+            dependencies: [
+                "Swift6502",
+                "Quick",
+                "Nimble",
+            ]
         ),
     ]
 )
