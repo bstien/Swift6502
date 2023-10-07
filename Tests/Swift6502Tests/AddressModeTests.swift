@@ -122,12 +122,23 @@ class AddressModeTests: XCTestCase {
     }
 
     func test_izy() {
-        let cpu = CPU.create(ram: [0x00, 0x03, 0x00, 0x00, 0x00, 0xAA, 0xFF], pc: 0x01, yReg: 0x02)
+        let cpu = CPU.create(ram: [0x00, 0x03, 0x00, 0xAA, 0xBB], pc: 0x01, yReg: 0x02)
 
-        cpu.setupAddressing(using: .izy)
+        let extraClockCycles = cpu.setupAddressing(using: .izy)
 
-        expect(cpu.addressAbsolute) == 0xFFAA
+        expect(cpu.addressAbsolute) == 0xBBAC
         expect(cpu.pc) == 0x02
+        expect(extraClockCycles) == 0
+    }
+
+    func test_izy_with_page_boundry_crossed() {
+        let cpu = CPU.create(ram: [0x00, 0x03, 0x00, 0xFE, 0xBB], pc: 0x01, yReg: 0x03)
+
+        let extraClockCycles = cpu.setupAddressing(using: .izy)
+
+        expect(cpu.addressAbsolute) == 0xBC01
+        expect(cpu.pc) == 0x02
+        expect(extraClockCycles) == 1
     }
 }
 

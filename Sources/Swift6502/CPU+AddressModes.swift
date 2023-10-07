@@ -136,16 +136,26 @@ private extension CPU {
         return 0
     }
 
-    /// Indirect, aka. pointer. Read from zero page with Y offset.
+    /// Indirect, aka. pointer. Read address from zero page, and offset this address with Y.
     ///
     /// The next byte contains a byte, `loc`, which points to a location in zero page. Add Y to this value to get the offset.
     /// The pointer will point to this location, where we'll read the absolute address from:
     ///
-    /// `((loc + Y + 1) << 8) | (loc + Y)`
+    /// `(((loc + 1) << 8) | loc) + Y`
     private func izy() -> UInt8 {
-        let pointer = readByte(pc).asWord + yReg.asWord
-        addressAbsolute = readWord(pointer)
+        let zeroPagePointer = readByte(pc).asWord
         pc += 1
+
+        // Read address from zero page pointer.
+        let lowByte = readByte(zeroPagePointer)
+        let highByte = readByte(zeroPagePointer + 1)
+
+        addressAbsolute = .createWord(highByte: highByte, lowByte: lowByte) + yReg.asWord
+
+        // Check if page boundry was crossed.
+        if addressAbsolute & 0xFF00 != (highByte.asWord << 8) {
+            return 1
+        }
 
         return 0
     }
