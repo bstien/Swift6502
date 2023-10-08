@@ -430,3 +430,19 @@ private extension CPU {
         0
     }
 }
+
+// MARK: - Private methods
+
+private extension CPU {
+    func setPcFromRelativeAddress() {
+        // `addressRelative` may be a negative number, so make sure we don't overflow.
+        let result = pc.addingReportingOverflow(addressRelative)
+
+        // If page boundry is crossed, another clock cycle will be used.
+        if result.overflow {
+            // TODO: Increment clock cycles, when/if needed to keep track of this.
+        }
+
+        pc = result.partialValue
+    }
+}
