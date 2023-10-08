@@ -338,7 +338,35 @@ private extension CPU {
 
     // Logical shift right (shifts in a zero bit on the left).
     func lsr(addressMode: AddressMode) -> UInt8 {
-        0
+        var value: UInt16
+
+        // If addressMode is `implied` we read from, and write back to, accumulator.
+        // Otherwise we read/write to memory.
+        if addressMode == .imp {
+            value = acc.asWord
+        } else {
+            value = readByte(addressAbsolute).asWord
+        }
+
+        // Carry flag will be set if we push a bit off.
+        setFlag(.carry, value & 0x01 == 0x01)
+
+        value = value >> 1
+
+        setFlag(.zero, value & 0x00FF == 0x00)
+        
+        // Can never be negative, since we don't push a bit onto bit 7.
+        setFlag(.negative, false)
+
+        let byte = UInt8(value & 0x00FF)
+
+        if addressMode == .imp {
+            acc = byte
+        } else {
+            writeByte(addressAbsolute, data: byte)
+        }
+
+        return 0
     }
 
     // No operation.
