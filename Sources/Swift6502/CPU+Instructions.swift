@@ -277,7 +277,10 @@ private extension CPU {
 
     // Increment memory by one.
     func inc(addressMode: AddressMode) -> UInt8 {
-        0
+        let value = readByte(addressAbsolute)
+        let incremented = perform(.inc, on: value)
+        writeByte(addressAbsolute, data: incremented)
+        return 0
     }
 
     // Increment X by one.
@@ -469,12 +472,15 @@ private extension CPU {
 
 private extension CPU {
     enum IncrementOrDecrement {
+        case inc
         case dec
     }
 
     func perform(_ op: IncrementOrDecrement, on value: UInt8) -> UInt8 {
         let result: UInt8
         switch op {
+        case .inc:
+            result = value.addingReportingOverflow(1).partialValue
         case .dec:
             result = value.subtractingReportingOverflow(1).partialValue
         }
