@@ -228,7 +228,8 @@ private extension CPU {
 
     // Clear overflow flag.
     func clv(addressMode: AddressMode) -> UInt8 {
-        0
+        setFlag(.overflow, false)
+        return 0
     }
 
     // Compare memory with accumulator.
