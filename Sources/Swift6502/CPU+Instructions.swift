@@ -400,7 +400,12 @@ private extension CPU {
 
     // Pull accumulator from stack.
     func pla(addressMode: AddressMode) -> UInt8 {
-        0
+        acc = pullFromStack()
+
+        setFlag(.zero, acc == 0x00)
+        setFlag(.negative, acc & 0x80 == 0x80)
+
+        return 0
     }
 
     // Pull processor status from stack.
