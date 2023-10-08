@@ -95,7 +95,14 @@ private extension CPU {
 
     // AND memory with accumulator.
     func and(addressMode: AddressMode) -> UInt8 {
-        0
+        let value = readByte(addressAbsolute)
+
+        acc = acc & value
+
+        setFlag(.zero, acc == 0x00)
+        setFlag(.negative, acc & 0x80 == 0x80)
+
+        return 1
     }
 
     // Shift left one bit (memory or accumulator).
