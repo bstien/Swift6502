@@ -448,4 +448,16 @@ private extension CPU {
 
         pc = result.partialValue
     }
+
+    func compareMemoryAgainst(_ value: UInt8) {
+        let memory = readByte(addressAbsolute)
+
+        // If register is bigger than, or equal to, memory, then set carry flag to true.
+        setFlag(.carry, value >= memory)
+
+        // Set flags based on difference between value and memory.
+        let diff = value.subtractingReportingOverflow(memory).partialValue
+        setFlag(.zero, diff == 0x00)
+        setFlag(.negative, diff & 0x80 == 0x80)
+    }
 }
