@@ -328,7 +328,12 @@ private extension CPU {
 
     // Load Y register.
     func ldy(addressMode: AddressMode) -> UInt8 {
-        0
+        yReg = readByte(addressAbsolute)
+
+        setFlag(.zero, yReg & 0x00FF == 0x00)
+        setFlag(.negative, yReg & 0x80 == 0x80)
+
+        return 0
     }
 
     // Logical shift right (shifts in a zero bit on the left).
