@@ -216,7 +216,8 @@ private extension CPU {
 
     // Clear decimal mode.
     func cld(addressMode: AddressMode) -> UInt8 {
-        0
+        setFlag(.decimal, false)
+        return 0
     }
 
     // Clear interrupt disable bit.
