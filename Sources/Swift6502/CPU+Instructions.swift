@@ -202,7 +202,10 @@ private extension CPU {
 
     // Branch on overflow set.
     func bvs(addressMode: AddressMode) -> UInt8 {
-        0
+        if readFlag(.overflow) {
+            setPcFromRelativeAddress()
+        }
+        return 0
     }
 
     // Clear carry flag.
