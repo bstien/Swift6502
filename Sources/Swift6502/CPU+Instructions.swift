@@ -285,7 +285,8 @@ private extension CPU {
 
     // Increment X by one.
     func inx(addressMode: AddressMode) -> UInt8 {
-        0
+        xReg = perform(.inc, on: xReg)
+        return 0
     }
 
     // Increment Y by one.
