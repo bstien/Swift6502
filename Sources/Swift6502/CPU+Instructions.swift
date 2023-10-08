@@ -181,7 +181,10 @@ private extension CPU {
 
     // Branch on result plus.
     func bpl(addressMode: AddressMode) -> UInt8 {
-        0
+        if !readFlag(.negative) {
+            setPcFromRelativeAddress()
+        }
+        return 0
     }
 
     // Force break.
