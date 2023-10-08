@@ -546,7 +546,12 @@ private extension CPU {
 
     // Transfer X to accumulator.
     func txa(addressMode: AddressMode) -> UInt8 {
-        0
+        acc = xReg
+
+        setFlag(.zero, acc == 0x00)
+        setFlag(.negative, acc & 0x80 == 0x80)
+
+        return 0
     }
 
     // Transfer X to stack pointer.
@@ -556,7 +561,12 @@ private extension CPU {
 
     // Transfer Y to accumulator.
     func tya(addressMode: AddressMode) -> UInt8 {
-        0
+        acc = yReg
+
+        setFlag(.zero, acc == 0x00)
+        setFlag(.negative, acc & 0x80 == 0x80)
+
+        return 0
     }
 }
 
