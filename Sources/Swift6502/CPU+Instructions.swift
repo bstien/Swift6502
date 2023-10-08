@@ -246,7 +246,8 @@ private extension CPU {
 
     // Compare memory with Y.
     func cpy(addressMode: AddressMode) -> UInt8 {
-        0
+        compareMemoryAgainst(yReg)
+        return 0
     }
 
     // Decrement memory by one.
