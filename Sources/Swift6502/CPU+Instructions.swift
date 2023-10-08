@@ -375,7 +375,8 @@ private extension CPU {
 
     // Set decimal flag.
     func sed(addressMode: AddressMode) -> UInt8 {
-        0
+        setFlag(.decimal, true)
+        return 0
     }
 
     // Set interrupt disable status.
