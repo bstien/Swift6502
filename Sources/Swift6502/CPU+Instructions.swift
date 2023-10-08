@@ -369,7 +369,8 @@ private extension CPU {
 
     // Set carry flag.
     func sec(addressMode: AddressMode) -> UInt8 {
-        0
+        setFlag(.carry, true)
+        return 0
     }
 
     // Set decimal flag.
