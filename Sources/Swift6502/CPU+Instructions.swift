@@ -503,17 +503,20 @@ private extension CPU {
 
     // Store accumulator in memory.
     func sta(addressMode: AddressMode) -> UInt8 {
-        0
+        writeByte(addressAbsolute, data: acc)
+        return 0
     }
 
     // Store X in memory.
     func stx(addressMode: AddressMode) -> UInt8 {
-        0
+        writeByte(addressAbsolute, data: xReg)
+        return 0
     }
 
     // Store Y in memory.
     func sty(addressMode: AddressMode) -> UInt8 {
-        0
+        writeByte(addressAbsolute, data: yReg)
+        return 0
     }
 
     // Transfer accumulator to X.
