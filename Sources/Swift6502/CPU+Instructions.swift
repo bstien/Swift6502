@@ -107,7 +107,31 @@ private extension CPU {
 
     // Shift left one bit (memory or accumulator).
     func asl(addressMode: AddressMode) -> UInt8 {
-        0
+        var value: UInt16
+
+        // If addressMode is `implied` we read from, and write back to, accumulator.
+        // Otherwise we read/write to memory.
+        if addressMode == .imp {
+            value = acc.asWord
+        } else {
+            value = readByte(addressAbsolute).asWord
+        }
+
+        value = value << 1
+
+        setFlag(.carry, value > 255)
+        setFlag(.zero, value & 0x00FF == 0x00)
+        setFlag(.negative, value & 0x80 == 0x80)
+
+        let byte = UInt8(value & 0x00FF)
+
+        if addressMode == .imp {
+            acc = byte
+        } else {
+            writeByte(addressAbsolute, data: byte)
+        }
+
+        return 0
     }
 
     // Branch on carry clear.
