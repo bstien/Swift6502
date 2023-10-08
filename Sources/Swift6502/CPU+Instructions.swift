@@ -210,7 +210,8 @@ private extension CPU {
 
     // Clear carry flag.
     func clc(addressMode: AddressMode) -> UInt8 {
-        0
+        setFlag(.carry, false)
+        return 0
     }
 
     // Clear decimal mode.
