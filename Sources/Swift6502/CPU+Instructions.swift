@@ -1,6 +1,7 @@
 import Foundation
 
 extension CPU {
+    @discardableResult
     func perform(instruction: Instruction, addressMode: AddressMode) -> UInt8 {
         switch instruction {
         case .xxx: 0
@@ -67,7 +68,29 @@ extension CPU {
 private extension CPU {
     // Add memory to accumulator with carry.
     func adc(addressMode: AddressMode) -> UInt8 {
-        0
+        // Overflow using `UInt8` results in an exception being thrown.
+        // "Cheat" and use `UInt16` when adding instead.
+        let valueToAdd = readByte(addressAbsolute).asWord + readFlag(.carry).value.asWord
+        let newValue = acc.asWord + valueToAdd
+
+        // Set carry.
+        setFlag(.carry, newValue > 0xFF)
+
+        // Set zero flag.
+        setFlag(.zero, newValue & 0xFF == 0x00)
+
+        // Set negative flag, if highest bit is set.
+        setFlag(.negative, newValue & 0x80 == 0x80)
+
+        // Set overflow flag.
+        // This flag should be set if the addition overflow in `Int8`, aka. if the result goes out of bounds of (-128 <-> +127).
+        // Cast both `acc` and `valueToAdd` to `Int8`, add them and check if there's an overflow.
+        let addResult = Int8(bitPattern: acc).addingReportingOverflow(Int8(bitPattern: UInt8(valueToAdd & 0xFF)))
+        setFlag(.overflow, addResult.overflow)
+
+        acc = UInt8(newValue & 0xFF)
+
+        return 1
     }
 
     // AND memory with accumulator.

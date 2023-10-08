@@ -1,6 +1,5 @@
 import XCTest
 @testable import Swift6502
-import Quick
 import Nimble
 
 class AddressModeTests: XCTestCase {
@@ -139,24 +138,5 @@ class AddressModeTests: XCTestCase {
         expect(cpu.addressAbsolute) == 0xBC01
         expect(cpu.pc) == 0x02
         expect(extraClockCycles) == 1
-    }
-}
-
-private extension CPU {
-    static func create(
-        ram: [UInt8],
-        pc: UInt16 = 0x0000,
-        xReg: UInt8 = 0x00,
-        yReg: UInt8 = 0x00
-    ) -> CPU {
-        CPU(
-            bus: Bus(ram: ram),
-            pc: pc,
-            stackPointer: 0x00,
-            acc: 0x00,
-            xReg: xReg,
-            yReg: yReg,
-            flags: 0x00
-        )
     }
 }
