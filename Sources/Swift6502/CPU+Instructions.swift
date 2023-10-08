@@ -297,7 +297,8 @@ private extension CPU {
 
     // Jump to new location.
     func jmp(addressMode: AddressMode) -> UInt8 {
-        0
+        pc = addressAbsolute
+        return 0
     }
 
     // Jump to new location, saving return address.
