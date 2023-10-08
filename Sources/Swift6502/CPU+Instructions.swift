@@ -521,12 +521,22 @@ private extension CPU {
 
     // Transfer accumulator to X.
     func tax(addressMode: AddressMode) -> UInt8 {
-        0
+        xReg = acc
+
+        setFlag(.zero, xReg == 0x00)
+        setFlag(.negative, xReg & 0x80 == 0x80)
+
+        return 0
     }
 
     // Transfer accumulator to Y.
     func tay(addressMode: AddressMode) -> UInt8 {
-        0
+        yReg = acc
+
+        setFlag(.zero, yReg == 0x00)
+        setFlag(.negative, yReg & 0x80 == 0x80)
+
+        return 0
     }
 
     // Transfer stack pointer to X.
