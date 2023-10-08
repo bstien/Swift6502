@@ -3,7 +3,7 @@ import XCTest
 import Nimble
 
 class PHP_Tests: XCTestCase {
-    func test_it_transfers_the_stack_pointer() {
+    func test_it_pushes_the_status_register() {
         let cpu = CPU.create(ram: .prepareForStack() + [0x00, 0x00, 0x00], stackPointer: 0x02)
         cpu.setupAddressing(using: .imp)
 

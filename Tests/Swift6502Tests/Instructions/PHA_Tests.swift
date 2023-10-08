@@ -3,7 +3,7 @@ import XCTest
 import Nimble
 
 class PHA_Tests: XCTestCase {
-    func test_it_transfers_the_stack_pointer() {
+    func test_it_pushes_the_accumulator() {
         let cpu = CPU.create(ram: .prepareForStack() + [0x00, 0x00, 0x00], acc: 0xFF, stackPointer: 0x02)
         cpu.setupAddressing(using: .imp)
 
