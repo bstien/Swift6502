@@ -381,7 +381,8 @@ private extension CPU {
 
     // Set interrupt disable status.
     func sei(addressMode: AddressMode) -> UInt8 {
-        0
+        setFlag(.interrupt, true)
+        return 0
     }
 
     // Store accumulator in memory.
