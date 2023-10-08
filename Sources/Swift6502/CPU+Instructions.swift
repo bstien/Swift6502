@@ -194,7 +194,10 @@ private extension CPU {
 
     // Branch on overflow clear.
     func bvc(addressMode: AddressMode) -> UInt8 {
-        0
+        if !readFlag(.overflow) {
+            setPcFromRelativeAddress()
+        }
+        return 0
     }
 
     // Branch on overflow set.
