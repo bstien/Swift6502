@@ -376,7 +376,14 @@ private extension CPU {
 
     // OR memory with accumulator.
     func ora(addressMode: AddressMode) -> UInt8 {
-        0
+        let value = readByte(addressAbsolute)
+
+        acc = acc | value
+
+        setFlag(.zero, acc == 0x00)
+        setFlag(.negative, acc & 0x80 == 0x80)
+
+        return 1
     }
 
     // Push accumulator on stack.
