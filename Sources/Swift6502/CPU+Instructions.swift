@@ -272,7 +272,14 @@ private extension CPU {
 
     // Exclusive-OR memory with accumulator.
     func eor(addressMode: AddressMode) -> UInt8 {
-        0
+        let memory = readByte(addressAbsolute)
+
+        acc = acc ^ memory
+
+        setFlag(.zero, acc & 0x00FF == 0x00)
+        setFlag(.negative, acc & 0x80 == 0x80)
+
+        return 1
     }
 
     // Increment memory by one.

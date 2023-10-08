@@ -3,7 +3,7 @@ import XCTest
 import Nimble
 
 class AND_Tests: XCTestCase {
-    func test_simple_addition() {
+    func test_simple_example() {
         let cpu = CPU.create(ram: [0x3F], acc: 0xF3)
         cpu.setupAddressing(using: .imm)
 
