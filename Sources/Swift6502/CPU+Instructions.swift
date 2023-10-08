@@ -260,7 +260,8 @@ private extension CPU {
 
     // Decrement X by one.
     func dex(addressMode: AddressMode) -> UInt8 {
-        0
+        xReg = perform(.dec, on: xReg)
+        return 0
     }
 
     // Decrement Y by one.
