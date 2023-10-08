@@ -252,7 +252,10 @@ private extension CPU {
 
     // Decrement memory by one.
     func dec(addressMode: AddressMode) -> UInt8 {
-        0
+        let value = readByte(addressAbsolute)
+        let decremented = perform(.dec, on: value)
+        writeByte(addressAbsolute, data: decremented)
+        return 0
     }
 
     // Decrement X by one.
@@ -459,5 +462,24 @@ private extension CPU {
         let diff = value.subtractingReportingOverflow(memory).partialValue
         setFlag(.zero, diff == 0x00)
         setFlag(.negative, diff & 0x80 == 0x80)
+    }
+}
+
+private extension CPU {
+    enum IncrementOrDecrement {
+        case dec
+    }
+
+    func perform(_ op: IncrementOrDecrement, on value: UInt8) -> UInt8 {
+        let result: UInt8
+        switch op {
+        case .dec:
+            result = value.subtractingReportingOverflow(1).partialValue
+        }
+
+        setFlag(.zero, result == 0x00)
+        setFlag(.negative, result & 0x80 == 0x80)
+
+        return result
     }
 }
