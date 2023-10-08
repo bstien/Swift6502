@@ -173,7 +173,10 @@ private extension CPU {
 
     // Branch on result not zero.
     func bne(addressMode: AddressMode) -> UInt8 {
-        0
+        if !readFlag(.zero) {
+            setPcFromRelativeAddress()
+        }
+        return 0
     }
 
     // Branch on result plus.
