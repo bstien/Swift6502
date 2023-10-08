@@ -318,7 +318,12 @@ private extension CPU {
 
     // Load X register.
     func ldx(addressMode: AddressMode) -> UInt8 {
-        0
+        xReg = readByte(addressAbsolute)
+
+        setFlag(.zero, xReg & 0x00FF == 0x00)
+        setFlag(.negative, xReg & 0x80 == 0x80)
+
+        return 0
     }
 
     // Load Y register.
