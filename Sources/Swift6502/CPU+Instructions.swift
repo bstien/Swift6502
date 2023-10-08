@@ -136,7 +136,10 @@ private extension CPU {
 
     // Branch on carry clear.
     func bcc(addressMode: AddressMode) -> UInt8 {
-        0
+        if !readFlag(.carry) {
+            setPcFromRelativeAddress()
+        }
+        return 0
     }
 
     // Branch on carry set.
