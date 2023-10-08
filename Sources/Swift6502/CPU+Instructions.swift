@@ -556,7 +556,8 @@ private extension CPU {
 
     // Transfer X to stack pointer.
     func txs(addressMode: AddressMode) -> UInt8 {
-        0
+        stackPointer = xReg
+        return 0
     }
 
     // Transfer Y to accumulator.

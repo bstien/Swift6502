@@ -5,13 +5,14 @@ extension CPU {
         ram: [UInt8],
         acc: UInt8 = 0x00,
         pc: UInt16 = 0x0000,
+        stackPointer: UInt8 = 0xFF,
         xReg: UInt8 = 0x00,
         yReg: UInt8 = 0x00
     ) -> CPU {
         CPU(
             bus: Bus(ram: ram),
             pc: pc,
-            stackPointer: 0x00,
+            stackPointer: stackPointer,
             acc: acc,
             xReg: xReg,
             yReg: yReg,

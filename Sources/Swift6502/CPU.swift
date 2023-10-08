@@ -5,7 +5,7 @@ class CPU {
     // MARK: - Internal properties
 
     var pc: UInt16 = 0x0000
-    var stackPointer: UInt8 = 0x00
+    var stackPointer: UInt8 = 0xFF
     var acc: UInt8 = 0x00
     var xReg: UInt8 = 0x00
     var yReg: UInt8 = 0x00
@@ -25,7 +25,7 @@ class CPU {
     init(
         bus: Bus = Bus(),
         pc: UInt16 = 0x0000,
-        stackPointer: UInt8 = 0x00,
+        stackPointer: UInt8 = 0xFF,
         acc: UInt8 = 0x00,
         xReg: UInt8 = 0x00,
         yReg: UInt8 = 0x00,
