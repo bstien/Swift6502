@@ -266,7 +266,8 @@ private extension CPU {
 
     // Decrement Y by one.
     func dey(addressMode: AddressMode) -> UInt8 {
-        0
+        yReg = perform(.dec, on: yReg)
+        return 0
     }
 
     // Exclusive-OR memory with accumulator.
