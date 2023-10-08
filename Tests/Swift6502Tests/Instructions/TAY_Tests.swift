@@ -11,4 +11,26 @@ class TAY_Tests: XCTestCase {
 
         expect(cpu.yReg) == 0xFF
     }
+
+    func test_it_sets_zero_flag() {
+        let cpu = CPU.create(ram: [], acc: 0x00)
+        cpu.setupAddressing(using: .imp)
+
+        cpu.perform(instruction: .tay, addressMode: .imp)
+
+        expect(cpu.yReg) == 0x00
+        expect(cpu.readFlag(.zero)) == true
+        expect(cpu.readFlag(.negative)) == false
+    }
+
+    func test_it_sets_negative_flag() {
+        let cpu = CPU.create(ram: [], acc: 0x80)
+        cpu.setupAddressing(using: .imp)
+
+        cpu.perform(instruction: .tay, addressMode: .imp)
+
+        expect(cpu.yReg) == 0x80
+        expect(cpu.readFlag(.zero)) == false
+        expect(cpu.readFlag(.negative)) == true
+    }
 }
