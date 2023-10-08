@@ -222,7 +222,8 @@ private extension CPU {
 
     // Clear interrupt disable bit.
     func cli(addressMode: AddressMode) -> UInt8 {
-        0
+        setFlag(.interrupt, false)
+        return 0
     }
 
     // Clear overflow flag.
