@@ -234,7 +234,17 @@ private extension CPU {
 
     // Compare memory with accumulator.
     func cmp(addressMode: AddressMode) -> UInt8 {
-        0
+        let memory = readByte(addressAbsolute)
+        
+        // If accumulator is bigger than, or equal to, memory, then set carry flag to true.
+        setFlag(.carry, acc >= memory)
+
+        // Set flags based on difference between accumulator and memory.
+        let diff = acc.subtractingReportingOverflow(memory).partialValue
+        setFlag(.zero, diff == 0x00)
+        setFlag(.negative, diff & 0x80 == 0x80)
+
+        return 1
     }
 
     // Compare memory with X.
