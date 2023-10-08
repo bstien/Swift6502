@@ -291,7 +291,8 @@ private extension CPU {
 
     // Increment Y by one.
     func iny(addressMode: AddressMode) -> UInt8 {
-        0
+        yReg = perform(.inc, on: yReg)
+        return 0
     }
 
     // Jump to new location.
