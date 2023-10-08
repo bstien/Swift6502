@@ -410,7 +410,8 @@ private extension CPU {
 
     // Pull processor status from stack.
     func plp(addressMode: AddressMode) -> UInt8 {
-        0
+        flags = pullFromStack()
+        return 0
     }
 
     // Rotate one bit left (memory or accumulator).
@@ -637,5 +638,10 @@ private extension CPU {
     func pushToStack(_ value: UInt8) {
         writeByte(0x0100 + stackPointer.asWord, data: value)
         stackPointer = stackPointer.subtractingReportingOverflow(1).partialValue
+    }
+
+    func pullFromStack() -> UInt8 {
+        stackPointer = stackPointer.addingReportingOverflow(1).partialValue
+        return readByte(0x0100 + stackPointer.asWord)
     }
 }
