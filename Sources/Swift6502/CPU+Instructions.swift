@@ -388,7 +388,8 @@ private extension CPU {
 
     // Push accumulator on stack.
     func pha(addressMode: AddressMode) -> UInt8 {
-        0
+        pushToStack(acc)
+        return 0
     }
 
     // Push processor status on stack.
@@ -623,5 +624,12 @@ private extension CPU {
         setFlag(.negative, result & 0x80 == 0x80)
 
         return result
+    }
+}
+
+private extension CPU {
+    func pushToStack(_ value: UInt8) {
+        writeByte(0x0100 + stackPointer.asWord, data: value)
+        stackPointer = stackPointer.subtractingReportingOverflow(1).partialValue
     }
 }
