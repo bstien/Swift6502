@@ -44,12 +44,21 @@ class AddressModeTests: XCTestCase {
         expect(cpu.pc) == 0x01
     }
 
-    func test_rel() {
-        let cpu = CPU.create(ram: [0xAA, 0x02, 0x03])
+    func test_rel_with_positive_offset() {
+        let cpu = CPU.create(ram: [0x03])
 
         cpu.setupAddressing(using: .rel)
 
-        expect(cpu.addressRelative) == 0xAA
+        expect(cpu.addressRelative) == 0x03
+        expect(cpu.pc) == 0x01
+    }
+
+    func test_rel_with_negative_offset() {
+        let cpu = CPU.create(ram: [0xFE])
+
+        cpu.setupAddressing(using: .rel)
+
+        expect(cpu.addressRelative) == 0xFFFE
         expect(cpu.pc) == 0x01
     }
 

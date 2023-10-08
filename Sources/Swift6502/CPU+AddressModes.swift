@@ -67,6 +67,13 @@ private extension CPU {
     private func rel() -> UInt8 {
         addressRelative = readByte(pc).asWord
         pc += 1
+
+        // Relative addressing allows for a navigating to an address within -128 to +127 of `pc`.
+        // If the relative offset is negative, we need to flip the bits so a "subtraction" will occur.
+        if addressRelative & 0x80 == 0x80 {
+            addressRelative |= 0xFF00
+        }
+
         return 0
     }
 
