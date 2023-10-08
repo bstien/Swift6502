@@ -17,6 +17,20 @@ class ADC_Tests: XCTestCase {
         expect(cpu.readFlag(.overflow)) == false
     }
 
+    func test_simple_addition_with_memory() {
+        let cpu = CPU.create(ram: [0x02, 0x00, 0x04], acc: 0x02)
+        cpu.setupAddressing(using: .abs)
+
+        cpu.perform(instruction: .adc, addressMode: .abs)
+
+        expect(cpu.acc) == 0x06
+
+        expect(cpu.readFlag(.carry)) == false
+        expect(cpu.readFlag(.negative)) == false
+        expect(cpu.readFlag(.zero)) == false
+        expect(cpu.readFlag(.overflow)) == false
+    }
+
     func test_it_includes_carry_flag() {
         let cpu = CPU.create(ram: [0x03], acc: 0x02)
         cpu.setupAddressing(using: .imm)
