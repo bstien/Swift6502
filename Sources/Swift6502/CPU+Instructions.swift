@@ -394,7 +394,8 @@ private extension CPU {
 
     // Push processor status on stack.
     func php(addressMode: AddressMode) -> UInt8 {
-        0
+        pushToStack(flags)
+        return 0
     }
 
     // Pull accumulator from stack.
