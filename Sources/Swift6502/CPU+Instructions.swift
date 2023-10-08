@@ -308,7 +308,12 @@ private extension CPU {
 
     // Load accumulator.
     func lda(addressMode: AddressMode) -> UInt8 {
-        0
+        acc = readByte(addressAbsolute)
+
+        setFlag(.zero, acc & 0x00FF == 0x00)
+        setFlag(.negative, acc & 0x80 == 0x80)
+
+        return 0
     }
 
     // Load X register.
