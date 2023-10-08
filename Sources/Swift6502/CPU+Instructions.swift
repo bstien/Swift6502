@@ -165,7 +165,10 @@ private extension CPU {
 
     // Branch on result minus.
     func bmi(addressMode: AddressMode) -> UInt8 {
-        0
+        if readFlag(.negative) {
+            setPcFromRelativeAddress()
+        }
+        return 0
     }
 
     // Branch on result not zero.
