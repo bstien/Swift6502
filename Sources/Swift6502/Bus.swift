@@ -3,7 +3,7 @@ import Foundation
 class Bus {
     var ram: [UInt8]
 
-    init(ram: [UInt8] = Array(repeating: UInt8(0x00), count: Int(UInt16.max))) {
+    init(ram: [UInt8] = Array(repeating: UInt8(0x00), count: Int(UInt16.max) + 1)) {
         self.ram = ram
     }
 
