@@ -160,7 +160,16 @@ private extension CPU {
 
     // Test bits in memory with accumulator.
     func bit(addressMode: AddressMode) -> UInt8 {
-        0
+        let memory = readByte(addressAbsolute)
+
+        // Set zero flag if AND == 0.
+        setFlag(.zero, acc & memory == 0x00)
+
+        // Test bits 7 and 6 in memory.
+        setFlag(.negative, memory & 0x80 == 0x80)
+        setFlag(.overflow, memory & 0x40 == 0x40)
+
+        return 0
     }
 
     // Branch on result minus.
