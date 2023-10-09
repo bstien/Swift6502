@@ -406,7 +406,9 @@ private extension CPU {
 
     // No operation.
     func nop(addressMode: AddressMode) -> UInt8 {
-        0
+        // TODO: Revisit NOPs that potentially uses more clock cycles.
+        // I believe there exists a few NOP opcodes that will spend N clock cycles doing nothing.
+        return 0
     }
 
     // OR memory with accumulator.
