@@ -310,7 +310,11 @@ private extension CPU {
 
     // Jump to new location, saving return address.
     func jsr(addressMode: AddressMode) -> UInt8 {
-        0
+        pc -= 1
+        pushToStack(pc)
+        pc = addressAbsolute
+
+        return 0
     }
 
     // Load accumulator.
@@ -645,6 +649,11 @@ private extension CPU {
     func pushToStack(_ value: UInt8) {
         writeByte(0x0100 + stackPointer.asWord, data: value)
         stackPointer = stackPointer.subtractingReportingOverflow(1).partialValue
+    }
+
+    func pushToStack(_ value: UInt16) {
+        pushToStack(value.highByte)
+        pushToStack(value.lowByte)
     }
 
     func pullFromStack() -> UInt8 {
