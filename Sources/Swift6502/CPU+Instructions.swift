@@ -529,9 +529,41 @@ private extension CPU {
         return 0
     }
 
-    // Subtract memory from accumulator with borrow.
+    /// Subtract memory from accumulator with borrow.
+    ///
+    /// References:
+    /// - https://www.righto.com/2012/12/the-6502-overflow-flag-explained.html
+    /// - http://forum.6502.org/viewtopic.php?f=1&t=7444
+    /// - https://www.atariarchives.org/2bml/chapter_10.php
     func sbc(addressMode: AddressMode) -> UInt8 {
-        0
+        let memory = readByte(addressAbsolute)
+        
+        // Flip the bits of memory so we get a negative number.
+        let valueToAdd = (memory ^ 0xFF).asWord
+
+        // Add together with carry, aka. negative borrow.
+        let newValue = acc.asWord + valueToAdd + readFlag(.carry).value.asWord
+        
+        // Set overflow flag.
+        // Read this before setting the other, since we need to read out what the carry was initially set to.
+        // This flag should be set if the addition overflow in `Int8`, aka. if the result goes out of bounds of (-128 <-> +127).
+        // This will happen if i.e. you add to positive numbers and the result is negative.
+        // Cast both `acc` and `memory` to `Int8`, subtract them and check if there's an overflow.
+        let subtractionResult = Int8(bitPattern: acc)
+            .subtractingReportingOverflow(
+                Int8(bitPattern: memory &- (1 - readFlag(.carry).value))
+            )
+        setFlag(.overflow, subtractionResult.overflow)
+
+        // Set flags.
+        setFlag(.carry, newValue > 0x00FF)
+        setFlag(.zero, newValue & 0x00FF == 0x00)
+        setFlag(.negative, newValue & 0x80 == 0x80)
+
+
+        acc = UInt8(newValue & 0xFF)
+
+        return 0
     }
 
     // Set carry flag.
