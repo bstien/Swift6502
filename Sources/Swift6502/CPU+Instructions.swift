@@ -311,7 +311,7 @@ private extension CPU {
     // Jump to new location, saving return address.
     func jsr(addressMode: AddressMode) -> UInt8 {
         pc -= 1
-        pushToStack(pc)
+        pushToStack(word: pc)
         pc = addressAbsolute
 
         return 0
@@ -399,13 +399,13 @@ private extension CPU {
 
     // Push accumulator on stack.
     func pha(addressMode: AddressMode) -> UInt8 {
-        pushToStack(acc)
+        pushToStack(byte: acc)
         return 0
     }
 
     // Push processor status on stack.
     func php(addressMode: AddressMode) -> UInt8 {
-        pushToStack(flags)
+        pushToStack(byte: flags)
         return 0
     }
 
@@ -652,14 +652,14 @@ private extension CPU {
 }
 
 private extension CPU {
-    func pushToStack(_ value: UInt8) {
-        writeByte(0x0100 + stackPointer.asWord, data: value)
+    func pushToStack(byte: UInt8) {
+        writeByte(0x0100 + stackPointer.asWord, data: byte)
         stackPointer = stackPointer.subtractingReportingOverflow(1).partialValue
     }
 
-    func pushToStack(_ value: UInt16) {
-        pushToStack(value.highByte)
-        pushToStack(value.lowByte)
+    func pushToStack(word: UInt16) {
+        pushToStack(byte: word.highByte)
+        pushToStack(byte: word.lowByte)
     }
 
     func pullByteFromStack() -> UInt8 {
