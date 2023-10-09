@@ -189,7 +189,22 @@ private extension CPU {
 
     // Force break.
     func brk(addressMode: AddressMode) -> UInt8 {
-        0
+        // Push PC onto stack.
+        pc += 1
+        pushToStack(word: pc)
+
+        // Set break and interrupt flag, before pushing status onto stack.
+        setFlag(.break, true)
+        setFlag(.interrupt, true)
+        pushToStack(byte: flags)
+
+        // Turn off break flag.
+        setFlag(.break, false)
+
+        // Set PC to contain address in interrupt vector at 0xFFFE
+        pc = readWord(0xFFFE)
+
+        return 0
     }
 
     // Branch on overflow clear.
