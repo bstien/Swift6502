@@ -80,7 +80,7 @@ private extension CPU {
         setFlag(.zero, newValue & 0xFF == 0x00)
 
         // Set negative flag, if highest bit is set.
-        setFlag(.negative, newValue & 0x80 == 0x80)
+        setNegativeFlag(using: newValue)
 
         // Set overflow flag.
         // This flag should be set if the addition overflow in `Int8`, aka. if the result goes out of bounds of (-128 <-> +127).
@@ -100,7 +100,7 @@ private extension CPU {
         acc = acc & value
 
         setFlag(.zero, acc == 0x00)
-        setFlag(.negative, acc & 0x80 == 0x80)
+        setNegativeFlag(using: acc)
 
         return 1
     }
@@ -121,7 +121,7 @@ private extension CPU {
 
         setFlag(.carry, value > 255)
         setFlag(.zero, value & 0x00FF == 0x00)
-        setFlag(.negative, value & 0x80 == 0x80)
+        setNegativeFlag(using: value)
 
         let byte = UInt8(value & 0x00FF)
 
@@ -166,7 +166,7 @@ private extension CPU {
         setFlag(.zero, acc & memory == 0x00)
 
         // Test bits 7 and 6 in memory.
-        setFlag(.negative, memory & 0x80 == 0x80)
+        setNegativeFlag(using: memory)
         setFlag(.overflow, memory & 0x40 == 0x40)
 
         return 0
@@ -301,7 +301,7 @@ private extension CPU {
         acc = acc ^ memory
 
         setFlag(.zero, acc & 0x00FF == 0x00)
-        setFlag(.negative, acc & 0x80 == 0x80)
+        setNegativeFlag(using: acc)
 
         return 1
     }
@@ -346,7 +346,7 @@ private extension CPU {
         acc = readByte(addressAbsolute)
 
         setFlag(.zero, acc & 0x00FF == 0x00)
-        setFlag(.negative, acc & 0x80 == 0x80)
+        setNegativeFlag(using: acc)
 
         return 0
     }
@@ -356,7 +356,7 @@ private extension CPU {
         xReg = readByte(addressAbsolute)
 
         setFlag(.zero, xReg & 0x00FF == 0x00)
-        setFlag(.negative, xReg & 0x80 == 0x80)
+        setNegativeFlag(using: xReg)
 
         return 0
     }
@@ -366,7 +366,7 @@ private extension CPU {
         yReg = readByte(addressAbsolute)
 
         setFlag(.zero, yReg & 0x00FF == 0x00)
-        setFlag(.negative, yReg & 0x80 == 0x80)
+        setNegativeFlag(using: yReg)
 
         return 0
     }
@@ -418,7 +418,7 @@ private extension CPU {
         acc = acc | value
 
         setFlag(.zero, acc == 0x00)
-        setFlag(.negative, acc & 0x80 == 0x80)
+        setNegativeFlag(using: acc)
 
         return 1
     }
@@ -440,7 +440,7 @@ private extension CPU {
         acc = pullByteFromStack()
 
         setFlag(.zero, acc == 0x00)
-        setFlag(.negative, acc & 0x80 == 0x80)
+        setNegativeFlag(using: acc)
 
         return 0
     }
@@ -467,7 +467,7 @@ private extension CPU {
 
         setFlag(.carry, value > 255)
         setFlag(.zero, value & 0x00FF == 0x00)
-        setFlag(.negative, value & 0x80 == 0x80)
+        setNegativeFlag(using: value)
 
         let byte = UInt8(value & 0x00FF)
 
@@ -500,7 +500,7 @@ private extension CPU {
 
         setFlag(.carry, shouldSetCarry)
         setFlag(.zero, value & 0x00FF == 0x00)
-        setFlag(.negative, value & 0x80 == 0x80)
+        setNegativeFlag(using: value)
 
         let byte = UInt8(value & 0x00FF)
 
@@ -558,7 +558,7 @@ private extension CPU {
         // Set flags.
         setFlag(.carry, newValue > 0x00FF)
         setFlag(.zero, newValue & 0x00FF == 0x00)
-        setFlag(.negative, newValue & 0x80 == 0x80)
+        setNegativeFlag(using: newValue)
 
 
         acc = UInt8(newValue & 0xFF)
@@ -607,7 +607,7 @@ private extension CPU {
         xReg = acc
 
         setFlag(.zero, xReg == 0x00)
-        setFlag(.negative, xReg & 0x80 == 0x80)
+        setNegativeFlag(using: xReg)
 
         return 0
     }
@@ -617,7 +617,7 @@ private extension CPU {
         yReg = acc
 
         setFlag(.zero, yReg == 0x00)
-        setFlag(.negative, yReg & 0x80 == 0x80)
+        setNegativeFlag(using: yReg)
 
         return 0
     }
@@ -627,7 +627,7 @@ private extension CPU {
         xReg = stackPointer
 
         setFlag(.zero, xReg == 0x00)
-        setFlag(.negative, xReg & 0x80 == 0x80)
+        setNegativeFlag(using: xReg)
 
         return 0
     }
@@ -637,7 +637,7 @@ private extension CPU {
         acc = xReg
 
         setFlag(.zero, acc == 0x00)
-        setFlag(.negative, acc & 0x80 == 0x80)
+        setNegativeFlag(using: acc)
 
         return 0
     }
@@ -653,7 +653,7 @@ private extension CPU {
         acc = yReg
 
         setFlag(.zero, acc == 0x00)
-        setFlag(.negative, acc & 0x80 == 0x80)
+        setNegativeFlag(using: acc)
 
         return 0
     }
@@ -683,9 +683,11 @@ private extension CPU {
         // Set flags based on difference between value and memory.
         let diff = value.subtractingReportingOverflow(memory).partialValue
         setFlag(.zero, diff == 0x00)
-        setFlag(.negative, diff & 0x80 == 0x80)
+        setNegativeFlag(using: diff)
     }
 }
+
+// MARK: - Increment and decrement
 
 private extension CPU {
     enum IncrementOrDecrement {
@@ -703,11 +705,13 @@ private extension CPU {
         }
 
         setFlag(.zero, result == 0x00)
-        setFlag(.negative, result & 0x80 == 0x80)
+        setNegativeFlag(using: result)
 
         return result
     }
 }
+
+// MARK: - Stack operations
 
 private extension CPU {
     func pushToStack(byte: UInt8) {
@@ -729,5 +733,17 @@ private extension CPU {
         let lowByte = pullByteFromStack()
         let highByte = pullByteFromStack()
         return .createWord(highByte: highByte, lowByte: lowByte)
+    }
+}
+
+// MARK: - Flag operations
+
+private extension CPU {
+    func setNegativeFlag(using value: UInt8) {
+        setFlag(.negative, value & 0x80 == 0x80)
+    }
+
+    func setNegativeFlag(using value: UInt16) {
+        setFlag(.negative, value & 0x80 == 0x80)
     }
 }
