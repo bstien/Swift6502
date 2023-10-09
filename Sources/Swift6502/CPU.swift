@@ -89,4 +89,14 @@ class CPU {
     func readFlag(_ flag: StatusFlag) -> Bool {
         (flags & flag.rawValue) > 0
     }
+
+    // MARK: - Debugging
+
+    func getFlagString() -> String {
+        let statusFlags = StatusFlag.allCases
+        let firstRow = statusFlags.map(\.letter).joined()
+        let secondRow = statusFlags.map { String(readFlag($0).value) }.joined()
+
+        return [firstRow, secondRow].joined(separator: "\n")
+    }
 }
