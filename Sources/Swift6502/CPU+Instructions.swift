@@ -489,7 +489,13 @@ private extension CPU {
 
     // Return from interrupt.
     func rti(addressMode: AddressMode) -> UInt8 {
-        0
+        flags = pullFromStack()
+
+        let lowByte = pullFromStack()
+        let highByte = pullFromStack()
+        pc = .createWord(highByte: highByte, lowByte: lowByte)
+
+        return 0
     }
 
     // Return from subroutine.
