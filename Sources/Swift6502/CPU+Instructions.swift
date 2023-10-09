@@ -411,7 +411,7 @@ private extension CPU {
 
     // Pull accumulator from stack.
     func pla(addressMode: AddressMode) -> UInt8 {
-        acc = pullFromStack()
+        acc = pullByteFromStack()
 
         setFlag(.zero, acc == 0x00)
         setFlag(.negative, acc & 0x80 == 0x80)
@@ -421,7 +421,7 @@ private extension CPU {
 
     // Pull processor status from stack.
     func plp(addressMode: AddressMode) -> UInt8 {
-        flags = pullFromStack()
+        flags = pullByteFromStack()
         return 0
     }
 
@@ -489,18 +489,18 @@ private extension CPU {
 
     // Return from interrupt.
     func rti(addressMode: AddressMode) -> UInt8 {
-        flags = pullFromStack()
-
-        let lowByte = pullFromStack()
-        let highByte = pullFromStack()
-        pc = .createWord(highByte: highByte, lowByte: lowByte)
+        flags = pullByteFromStack()
+        pc = pullWordFromStack()
 
         return 0
     }
 
     // Return from subroutine.
     func rts(addressMode: AddressMode) -> UInt8 {
-        0
+        pc = pullWordFromStack()
+        pc += 1
+
+        return 0
     }
 
     // Subtract memory from accumulator with borrow.
@@ -662,8 +662,14 @@ private extension CPU {
         pushToStack(value.lowByte)
     }
 
-    func pullFromStack() -> UInt8 {
+    func pullByteFromStack() -> UInt8 {
         stackPointer = stackPointer.addingReportingOverflow(1).partialValue
         return readByte(0x0100 + stackPointer.asWord)
+    }
+
+    func pullWordFromStack() -> UInt16 {
+        let lowByte = pullByteFromStack()
+        let highByte = pullByteFromStack()
+        return .createWord(highByte: highByte, lowByte: lowByte)
     }
 }
