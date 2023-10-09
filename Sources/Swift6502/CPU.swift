@@ -41,7 +41,6 @@ class CPU {
     }
 
     // MARK: - Communicate with bus
-
     
     /// Reads a single byte from memory.
     /// - Parameter address: The memory address.
@@ -89,14 +88,5 @@ class CPU {
     /// - Returns: A `Bool` to indicate whether the flag is enabled or not.
     func readFlag(_ flag: StatusFlag) -> Bool {
         (flags & flag.rawValue) > 0
-    }
-}
-
-extension Bool {
-    var value: UInt8 {
-        switch self {
-        case true: 1
-        case false: 0
-        }
     }
 }
