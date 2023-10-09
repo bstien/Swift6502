@@ -77,7 +77,7 @@ private extension CPU {
         setFlag(.carry, newValue > 0xFF)
 
         // Set zero flag.
-        setFlag(.zero, newValue & 0xFF == 0x00)
+        setZeroFlag(using: newValue)
 
         // Set negative flag, if highest bit is set.
         setNegativeFlag(using: newValue)
@@ -99,7 +99,7 @@ private extension CPU {
 
         acc = acc & value
 
-        setFlag(.zero, acc == 0x00)
+        setZeroFlag(using: acc)
         setNegativeFlag(using: acc)
 
         return 1
@@ -120,7 +120,7 @@ private extension CPU {
         value = value << 1
 
         setFlag(.carry, value > 255)
-        setFlag(.zero, value & 0x00FF == 0x00)
+        setZeroFlag(using: value)
         setNegativeFlag(using: value)
 
         let byte = UInt8(value & 0x00FF)
@@ -163,7 +163,7 @@ private extension CPU {
         let memory = readByte(addressAbsolute)
 
         // Set zero flag if AND == 0.
-        setFlag(.zero, acc & memory == 0x00)
+        setZeroFlag(using: acc & memory)
 
         // Test bits 7 and 6 in memory.
         setNegativeFlag(using: memory)
@@ -300,7 +300,7 @@ private extension CPU {
 
         acc = acc ^ memory
 
-        setFlag(.zero, acc & 0x00FF == 0x00)
+        setZeroFlag(using: acc)
         setNegativeFlag(using: acc)
 
         return 1
@@ -345,7 +345,7 @@ private extension CPU {
     func lda(addressMode: AddressMode) -> UInt8 {
         acc = readByte(addressAbsolute)
 
-        setFlag(.zero, acc & 0x00FF == 0x00)
+        setZeroFlag(using: acc)
         setNegativeFlag(using: acc)
 
         return 0
@@ -355,7 +355,7 @@ private extension CPU {
     func ldx(addressMode: AddressMode) -> UInt8 {
         xReg = readByte(addressAbsolute)
 
-        setFlag(.zero, xReg & 0x00FF == 0x00)
+        setZeroFlag(using: xReg)
         setNegativeFlag(using: xReg)
 
         return 0
@@ -365,7 +365,7 @@ private extension CPU {
     func ldy(addressMode: AddressMode) -> UInt8 {
         yReg = readByte(addressAbsolute)
 
-        setFlag(.zero, yReg & 0x00FF == 0x00)
+        setZeroFlag(using: yReg)
         setNegativeFlag(using: yReg)
 
         return 0
@@ -388,8 +388,8 @@ private extension CPU {
 
         value = value >> 1
 
-        setFlag(.zero, value & 0x00FF == 0x00)
-        
+        setZeroFlag(using: value)
+
         // Can never be negative, since we don't push a bit onto bit 7.
         setFlag(.negative, false)
 
@@ -417,7 +417,7 @@ private extension CPU {
 
         acc = acc | value
 
-        setFlag(.zero, acc == 0x00)
+        setZeroFlag(using: acc)
         setNegativeFlag(using: acc)
 
         return 1
@@ -439,7 +439,7 @@ private extension CPU {
     func pla(addressMode: AddressMode) -> UInt8 {
         acc = pullByteFromStack()
 
-        setFlag(.zero, acc == 0x00)
+        setZeroFlag(using: acc)
         setNegativeFlag(using: acc)
 
         return 0
@@ -466,7 +466,7 @@ private extension CPU {
         value = (value << 1) | UInt16(readFlag(.carry).value)
 
         setFlag(.carry, value > 255)
-        setFlag(.zero, value & 0x00FF == 0x00)
+        setZeroFlag(using: value)
         setNegativeFlag(using: value)
 
         let byte = UInt8(value & 0x00FF)
@@ -499,7 +499,7 @@ private extension CPU {
         value = (UInt16(readFlag(.carry).value) << 7) | (value >> 1)
 
         setFlag(.carry, shouldSetCarry)
-        setFlag(.zero, value & 0x00FF == 0x00)
+        setZeroFlag(using: value)
         setNegativeFlag(using: value)
 
         let byte = UInt8(value & 0x00FF)
@@ -557,7 +557,7 @@ private extension CPU {
 
         // Set flags.
         setFlag(.carry, newValue > 0x00FF)
-        setFlag(.zero, newValue & 0x00FF == 0x00)
+        setZeroFlag(using: newValue)
         setNegativeFlag(using: newValue)
 
 
@@ -606,7 +606,7 @@ private extension CPU {
     func tax(addressMode: AddressMode) -> UInt8 {
         xReg = acc
 
-        setFlag(.zero, xReg == 0x00)
+        setZeroFlag(using: xReg)
         setNegativeFlag(using: xReg)
 
         return 0
@@ -616,7 +616,7 @@ private extension CPU {
     func tay(addressMode: AddressMode) -> UInt8 {
         yReg = acc
 
-        setFlag(.zero, yReg == 0x00)
+        setZeroFlag(using: yReg)
         setNegativeFlag(using: yReg)
 
         return 0
@@ -626,7 +626,7 @@ private extension CPU {
     func tsx(addressMode: AddressMode) -> UInt8 {
         xReg = stackPointer
 
-        setFlag(.zero, xReg == 0x00)
+        setZeroFlag(using: xReg)
         setNegativeFlag(using: xReg)
 
         return 0
@@ -636,7 +636,7 @@ private extension CPU {
     func txa(addressMode: AddressMode) -> UInt8 {
         acc = xReg
 
-        setFlag(.zero, acc == 0x00)
+        setZeroFlag(using: acc)
         setNegativeFlag(using: acc)
 
         return 0
@@ -652,7 +652,7 @@ private extension CPU {
     func tya(addressMode: AddressMode) -> UInt8 {
         acc = yReg
 
-        setFlag(.zero, acc == 0x00)
+        setZeroFlag(using: acc)
         setNegativeFlag(using: acc)
 
         return 0
@@ -682,7 +682,7 @@ private extension CPU {
 
         // Set flags based on difference between value and memory.
         let diff = value.subtractingReportingOverflow(memory).partialValue
-        setFlag(.zero, diff == 0x00)
+        setZeroFlag(using: diff)
         setNegativeFlag(using: diff)
     }
 }
@@ -704,7 +704,7 @@ private extension CPU {
             result = value.subtractingReportingOverflow(1).partialValue
         }
 
-        setFlag(.zero, result == 0x00)
+        setZeroFlag(using: result)
         setNegativeFlag(using: result)
 
         return result
@@ -739,6 +739,14 @@ private extension CPU {
 // MARK: - Flag operations
 
 private extension CPU {
+    func setZeroFlag(using value: UInt8) {
+        setFlag(.zero, value == 0x00)
+    }
+
+    func setZeroFlag(using value: UInt16) {
+        setFlag(.zero, value & 0xFF == 0x00)
+    }
+
     func setNegativeFlag(using value: UInt8) {
         setFlag(.negative, value & 0x80 == 0x80)
     }
