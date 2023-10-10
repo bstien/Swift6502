@@ -11,7 +11,7 @@ extension CPU {
     static var opcodes: [OpCode] {
         [
             //     00               01               02               03
-            (.brk, .imm, 7), (.ora, .izx, 6), (.xxx, .imp, 2), (.xxx, .imp, 8),
+            (.brk, .imp, 7), (.ora, .izx, 6), (.xxx, .imp, 2), (.xxx, .imp, 8),
             //     04               05               06               07
             (.nop, .imp, 3), (.ora, .zp0, 3), (.asl, .zp0, 5), (.xxx, .imp, 5),
             //     08               09               0A               0B
