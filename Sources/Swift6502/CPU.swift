@@ -40,6 +40,22 @@ class CPU {
         self.flags = flags
     }
 
+    // MARK: - Internal properties
+
+    func run() {
+        while true {
+            let opcodeByte = readByte(pc)
+            pc += 1
+            
+            if opcodeByte == 0x00 { break }
+
+            let opcode = Self.opcodes[Int(opcodeByte)]
+
+            setupAddressing(using: opcode.1)
+            perform(instruction: opcode.0, addressMode: opcode.1)
+        }
+    }
+
     // MARK: - Communicate with bus
     
     /// Reads a single byte from memory.
