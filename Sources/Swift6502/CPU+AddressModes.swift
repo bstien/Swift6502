@@ -56,7 +56,7 @@ private extension CPU {
     private func zpx() -> ExtraClockCycles {
         addressAbsolute = (readByte(pc) &+ xReg).asWord
         pc += 1
-        addressAbsolute &= 0x00FF
+        
         return 0
     }
 
@@ -64,7 +64,7 @@ private extension CPU {
     private func zpy() -> ExtraClockCycles {
         addressAbsolute = (readByte(pc) + yReg).asWord
         pc += 1
-        addressAbsolute &= 0x00FF
+
         return 0
     }
 
