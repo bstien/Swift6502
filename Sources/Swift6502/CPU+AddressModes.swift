@@ -52,7 +52,9 @@ private extension CPU {
 
     /// Zero page, with X register offset.
     ///
-    /// Read a value from zero page, aka the first page (`0x0000` to `0x00FF`)
+    /// Point a zero page address, offset by the value in the X register.
+    /// If the value with offset exceeds `0xFF` the value wraps around, which means we will
+    /// always address an address within zero page.
     private func zpx() -> ExtraClockCycles {
         addressAbsolute = (readByte(pc) &+ xReg).asWord
         pc += 1
@@ -60,9 +62,13 @@ private extension CPU {
         return 0
     }
 
-    /// Zero page, with Y offset.
+    /// Zero page, with Y register offset.
+    ///
+    /// Point a zero page address, offset by the value in the Y register.
+    /// If the value with offset exceeds `0xFF` the value wraps around, which means we will
+    /// always address an address within zero page.
     private func zpy() -> ExtraClockCycles {
-        addressAbsolute = (readByte(pc) + yReg).asWord
+        addressAbsolute = (readByte(pc) &+ yReg).asWord
         pc += 1
 
         return 0
