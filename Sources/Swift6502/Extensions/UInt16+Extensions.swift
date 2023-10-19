@@ -9,6 +9,10 @@ extension UInt16 {
         UInt8(self & 0xFF)
     }
 
+    var asHex: String {
+        String(format: "%04X", self)
+    }
+
     func isSamePage(as other: UInt16) -> Bool {
         highByte == other.highByte
     }

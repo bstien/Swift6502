@@ -4,4 +4,8 @@ extension UInt8 {
     var asWord: UInt16 {
         UInt16(self)
     }
+
+    var asHex: String {
+        String(format: "%02X", self)
+    }
 }

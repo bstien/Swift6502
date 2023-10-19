@@ -57,23 +57,3 @@ extension Disassembler {
        }
    }
 }
-
-// MARK: - Private extensions
-
-private extension Int {
-    var asHex: String {
-        String(format: "%04X", self)
-    }
-}
-
-private extension UInt8 {
-    var asHex: String {
-        String(format: "%02X", self)
-    }
-}
-
-private extension UInt16 {
-    var asHex: String {
-        String(format: "%04X", self)
-    }
-}
