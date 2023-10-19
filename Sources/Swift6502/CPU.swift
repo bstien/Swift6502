@@ -10,6 +10,7 @@ class CPU {
     var xReg: UInt8 = 0x00
     var yReg: UInt8 = 0x00
     var flags: UInt8 = 0x00
+    var clockCycles: Int = 0
 
     // These are separated, but they can probably be combined into a single variable. Check what's possible.
     // Maybe the `AddressMode` can return an adress instead?
@@ -51,8 +52,12 @@ class CPU {
 
             let opcode = Self.opcodes[Int(opcodeByte)]
 
-            setupAddressing(using: opcode.1)
-            perform(instruction: opcode.0, addressMode: opcode.1)
+            let extraClockCycles = setupAddressing(using: opcode.1)
+            let shouldIncludeExtraClockCycles = perform(instruction: opcode.0, addressMode: opcode.1)
+
+            // Increase clock cycles and add extra cycles, if needed.
+            // Extra cycles usually happens if a page boundry was crossed.
+            clockCycles += opcode.2 + (shouldIncludeExtraClockCycles ? extraClockCycles : 0)
         }
     }
 
