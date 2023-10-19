@@ -156,8 +156,9 @@ private extension CPU {
     ///
     /// `((loc + X + 1) << 8) | (loc + X)`
     private func izx() -> ExtraClockCycles {
-        let pointer = readByte(pc).asWord + xReg.asWord
-        addressAbsolute = readWord(pointer)
+        // Make sure we wrap around in zero page, instead of incrementing page.
+        let pointer = readByte(pc) &+ xReg
+        addressAbsolute = readWord(pointer.asWord)
         pc += 1
 
         return 0
