@@ -11,7 +11,6 @@ let package = Package(
         ),
     ],
     dependencies: [
-        .package(url: "https://github.com/Quick/Quick.git", from: "7.3.0"),
         .package(url: "https://github.com/Quick/Nimble.git", from: "12.3.0"),
     ],
     targets: [
@@ -22,7 +21,6 @@ let package = Package(
             name: "Swift6502Tests",
             dependencies: [
                 "Swift6502",
-                "Quick",
                 "Nimble",
             ]
         ),
