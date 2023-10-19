@@ -171,17 +171,15 @@ private extension CPU {
     ///
     /// `(((loc + 1) << 8) | loc) + Y`
     private func izy() -> ExtraClockCycles {
+        // Read address from zero page pointer and add content of Y register.
         let zeroPagePointer = readByte(pc).asWord
+        let addressRead = readWord(zeroPagePointer)
+        addressAbsolute = addressRead &+ yReg.asWord
+
         pc += 1
 
-        // Read address from zero page pointer.
-        let lowByte = readByte(zeroPagePointer)
-        let highByte = readByte(zeroPagePointer + 1)
-
-        addressAbsolute = .createWord(highByte: highByte, lowByte: lowByte) + yReg.asWord
-
         // Check if page boundry was crossed.
-        if addressAbsolute & 0xFF00 != (highByte.asWord << 8) {
+        if !addressRead.isSamePage(as: addressAbsolute) {
             return 1
         }
 
