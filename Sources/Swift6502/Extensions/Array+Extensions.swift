@@ -5,7 +5,7 @@ extension Array where Element == UInt8 {
         indices.contains(Int(address))
     }
 
-    static func createRam(using startData: [UInt8]) -> [UInt8] {
-        startData + Array(repeating: 0x00, count: 0xFFFF + 1 - startData.count)
+    static func createRam(withProgram program: [UInt8]) -> [UInt8] {
+        program + Array(repeating: 0x00, count: 0xFFFF + 1 - program.count)
     }
 }

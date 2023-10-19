@@ -4,16 +4,16 @@ class Disassembler: CPU {
 
     // MARK: - Private properties
 
-    private var data: [UInt8]
+    private var program: [UInt8]
     private var operations = [Operation]()
 
     // MARK: - Init
 
-    init(data: [UInt8], pc: UInt16 = 0x00) {
-        self.data = data
+    init(program: [UInt8], pc: UInt16 = 0x00) {
+        self.program = program
 
         super.init(
-            bus: Bus(ram: .createRam(using: data)),
+            bus: Bus(ram: .createRam(withProgram: program)),
             pc: pc
         )
     }
@@ -23,7 +23,7 @@ class Disassembler: CPU {
     func disassemble() -> [String] {
         operations = []
 
-        while data.isWithinBounds(pc) {
+        while program.isWithinBounds(pc) {
             let offset = pc
             let opcodeByte = readByte(pc)
             pc += 1
