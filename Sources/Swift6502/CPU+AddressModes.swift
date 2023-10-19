@@ -32,7 +32,8 @@ private extension CPU {
 
     /// Immediate.
     ///
-    /// The next byte will be read as the address from where to read data.
+    /// The addressing mode will read the next byte as the data.
+    /// This means that the program counter will already be pointing to this address.
     private func imm() -> ExtraClockCycles {
         addressAbsolute = pc
         pc += 1

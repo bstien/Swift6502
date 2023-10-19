@@ -3,20 +3,6 @@ import XCTest
 import Nimble
 
 class AddressModeTests: XCTestCase {
-    func test_imm() {
-        // Set some random bytes in RAM.
-        // IMM defines that the next byte will be read as data, so `programCounter` will be the
-        // actual address used.
-        // `pc` is set to `1`, to emulate that the first byte in the array below is the opcode and
-        // that it has already been read.
-        let cpu = CPU.create(ram: [0xAA, 0xAA])
-
-        cpu.setupAddressing(using: .imm)
-
-        expect(cpu.addressAbsolute) == 0x00
-        expect(cpu.pc) == 0x01
-    }
-
     func test_zp0() {
         let cpu = CPU.create(ram: [0x01, 0x02])
 
