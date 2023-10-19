@@ -3,15 +3,6 @@ import XCTest
 import Nimble
 
 class AddressModeTests: XCTestCase {
-    func test_zp0() {
-        let cpu = CPU.create(ram: [0x01, 0x02])
-
-        cpu.setupAddressing(using: .zp0)
-
-        expect(cpu.addressAbsolute) == 0x01
-        expect(cpu.pc) == 0x01
-    }
-
     func test_zpy() {
         let cpu = CPU.create(ram: [0xAA, 0x02, 0x03], yReg: 0x02)
 

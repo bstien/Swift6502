@@ -43,7 +43,7 @@ private extension CPU {
 
     /// Zero page.
     ///
-    /// The value read from 
+    /// Point a zero page address, aka the first page. `0x0000` to `0x00FF`.
     private func zp0() -> ExtraClockCycles {
         addressAbsolute = (readByte(pc)).asWord
         pc += 1
