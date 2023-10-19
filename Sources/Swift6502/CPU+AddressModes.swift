@@ -95,9 +95,14 @@ private extension CPU {
     }
 
     /// Absolute.
+    ///
+    /// Will read the two next bytes and form them into an address.
+    /// Little-endian is used, so the first byte will contain the low byte and the second byte the high byte.
+    /// Ex. the byte sequence `0xAA,0xFF` will form the address `0xFFAA`.
     private func abs() -> ExtraClockCycles {
         addressAbsolute = readWord(pc)
         pc += 2
+        
         return 0
     }
 
