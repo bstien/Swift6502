@@ -32,7 +32,8 @@ private extension CPU {
 
     /// Immediate.
     ///
-    /// The next byte will be read as the address from where to read data.
+    /// The addressing mode will read the next byte as the data.
+    /// This means that the program counter will already be pointing to this address.
     private func imm() -> ExtraClockCycles {
         addressAbsolute = pc
         pc += 1
@@ -42,60 +43,78 @@ private extension CPU {
 
     /// Zero page.
     ///
-    /// The value read from 
+    /// Point a zero page address, aka the first page. `0x0000` to `0x00FF`.
     private func zp0() -> ExtraClockCycles {
         addressAbsolute = (readByte(pc)).asWord
         pc += 1
         return 0
     }
 
-    /// Zero page, with X offset.
+    /// Zero page, with X register offset.
+    ///
+    /// Point a zero page address, offset by the value in the X register.
+    /// If the value with offset exceeds `0xFF` the value wraps around, which means we will
+    /// always address an address within zero page.
     private func zpx() -> ExtraClockCycles {
-        addressAbsolute = (readByte(pc) + xReg).asWord
+        addressAbsolute = (readByte(pc) &+ xReg).asWord
         pc += 1
-        addressAbsolute &= 0x00FF
+        
         return 0
     }
 
-    /// Zero page, with Y offset.
+    /// Zero page, with Y register offset.
+    ///
+    /// Point a zero page address, offset by the value in the Y register.
+    /// If the value with offset exceeds `0xFF` the value wraps around, which means we will
+    /// always address an address within zero page.
     private func zpy() -> ExtraClockCycles {
-        addressAbsolute = (readByte(pc) + yReg).asWord
+        addressAbsolute = (readByte(pc) &+ yReg).asWord
         pc += 1
-        addressAbsolute &= 0x00FF
+
         return 0
     }
 
     /// Relative.
+    ///
+    /// Relative addressing allows for a navigating to an address within -128 to +127 of the program counter.
     private func rel() -> ExtraClockCycles {
         addressRelative = readByte(pc).asWord
         pc += 1
 
-        // Relative addressing allows for a navigating to an address within -128 to +127 of `pc`.
         // If the relative offset is negative, we need to flip the bits so a "subtraction" will occur.
         if addressRelative & 0x80 == 0x80 {
             addressRelative |= 0xFF00
         }
 
+        // TODO: Move absolute address calculation here.
+        // This addressing mode will always require 1 extra cycle, but can
+        // require 2 extra if page boundry is crossed.
+        // We should do this here, rather than when performing the instruction.
+
         return 0
     }
 
     /// Absolute.
+    ///
+    /// Will read the two next bytes and form them into an address.
+    /// Little-endian is used, so the first byte will contain the low byte and the second byte the high byte.
+    /// Ex. the byte sequence `0xAA,0xFF` will form the address `0xFFAA`.
     private func abs() -> ExtraClockCycles {
         addressAbsolute = readWord(pc)
         pc += 2
+        
         return 0
     }
 
     /// Absolute, with X offset.
     private func abx() -> ExtraClockCycles {
-        let lowByte = readByte(pc)
-        let highByte = readByte(pc + 1)
+        let addressRead = readWord(pc)
         pc += 2
         
-        addressAbsolute = .createWord(highByte: highByte, lowByte: lowByte) + xReg.asWord
+        addressAbsolute = addressRead &+ xReg.asWord
 
         // 1 extra clock cycle is used if page boundry is crossed.
-        if ((addressAbsolute & 0xFF00) != (UInt16(highByte) << 8)) {
+        if !addressRead.isSamePage(as: addressAbsolute) {
             return 1
         }
 
@@ -104,14 +123,13 @@ private extension CPU {
 
     /// Absolute, with Y offset.
     private func aby() -> ExtraClockCycles {
-        let lowByte = readByte(pc)
-        let highByte = readByte(pc + 1)
+        let addressRead = readWord(pc)
         pc += 2
 
-        addressAbsolute = .createWord(highByte: highByte, lowByte: lowByte) + yReg.asWord
+        addressAbsolute = addressRead &+ yReg.asWord
 
         // 1 extra clock cycle is used if page boundry is crossed.
-        if ((addressAbsolute & 0xFF00) != (highByte.asWord << 8)) {
+        if !addressRead.isSamePage(as: addressAbsolute) {
             return 1
         }
 
@@ -138,8 +156,9 @@ private extension CPU {
     ///
     /// `((loc + X + 1) << 8) | (loc + X)`
     private func izx() -> ExtraClockCycles {
-        let pointer = readByte(pc).asWord + xReg.asWord
-        addressAbsolute = readWord(pointer)
+        // Make sure we wrap around in zero page, instead of incrementing page.
+        let pointer = readByte(pc) &+ xReg
+        addressAbsolute = readWord(pointer.asWord)
         pc += 1
 
         return 0
@@ -152,32 +171,18 @@ private extension CPU {
     ///
     /// `(((loc + 1) << 8) | loc) + Y`
     private func izy() -> ExtraClockCycles {
+        // Read address from zero page pointer and add content of Y register.
         let zeroPagePointer = readByte(pc).asWord
+        let addressRead = readWord(zeroPagePointer)
+        addressAbsolute = addressRead &+ yReg.asWord
+
         pc += 1
 
-        // Read address from zero page pointer.
-        let lowByte = readByte(zeroPagePointer)
-        let highByte = readByte(zeroPagePointer + 1)
-
-        addressAbsolute = .createWord(highByte: highByte, lowByte: lowByte) + yReg.asWord
-
         // Check if page boundry was crossed.
-        if addressAbsolute & 0xFF00 != (highByte.asWord << 8) {
+        if !addressRead.isSamePage(as: addressAbsolute) {
             return 1
         }
 
         return 0
-    }
-}
-
-extension UInt8 {
-    var asWord: UInt16 {
-        UInt16(self)
-    }
-}
-
-extension UInt16 {
-    static func createWord(highByte: UInt8, lowByte: UInt8) -> UInt16 {
-        (highByte.asWord << 8) | lowByte.asWord
     }
 }
