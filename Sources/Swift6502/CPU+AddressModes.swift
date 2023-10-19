@@ -49,7 +49,9 @@ private extension CPU {
         return 0
     }
 
-    /// Zero page, with X offset.
+    /// Zero page, with X register offset.
+    ///
+    /// Read a value from zero page, aka the first page (`0x0000` to `0x00FF`)
     private func zpx() -> ExtraClockCycles {
         addressAbsolute = (readByte(pc) &+ xReg).asWord
         pc += 1

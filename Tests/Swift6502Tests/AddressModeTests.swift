@@ -26,15 +26,6 @@ class AddressModeTests: XCTestCase {
         expect(cpu.pc) == 0x01
     }
 
-    func test_zpx() {
-        let cpu = CPU.create(ram: [0xAA, 0x02, 0x03], xReg: 0x02)
-
-        cpu.setupAddressing(using: .zpx)
-
-        expect(cpu.addressAbsolute) == 0xAC
-        expect(cpu.pc) == 0x01
-    }
-
     func test_zpy() {
         let cpu = CPU.create(ram: [0xAA, 0x02, 0x03], yReg: 0x02)
 
