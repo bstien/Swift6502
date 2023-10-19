@@ -10,6 +10,7 @@ class CPU {
     var xReg: UInt8 = 0x00
     var yReg: UInt8 = 0x00
     var flags: UInt8 = 0x00
+    var clockCycles: Int = 0
 
     // These are separated, but they can probably be combined into a single variable. Check what's possible.
     // Maybe the `AddressMode` can return an adress instead?
