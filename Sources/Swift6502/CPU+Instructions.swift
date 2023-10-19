@@ -139,7 +139,7 @@ private extension CPU {
     // Branch on carry clear.
     func bcc(addressMode: AddressMode) -> ShouldIncludeExtraClockCycles {
         if !readFlag(.carry) {
-            setPcFromRelativeAddress()
+            pc = addressAbsolute
         }
         return false
     }
@@ -147,7 +147,7 @@ private extension CPU {
     // Branch on carry set.
     func bcs(addressMode: AddressMode) -> ShouldIncludeExtraClockCycles {
         if readFlag(.carry) {
-            setPcFromRelativeAddress()
+            pc = addressAbsolute
         }
         return false
     }
@@ -155,7 +155,7 @@ private extension CPU {
     // Branch on result zero.
     func beq(addressMode: AddressMode) -> ShouldIncludeExtraClockCycles {
         if readFlag(.zero) {
-            setPcFromRelativeAddress()
+            pc = addressAbsolute
         }
         return false
     }
@@ -177,7 +177,7 @@ private extension CPU {
     // Branch on result minus.
     func bmi(addressMode: AddressMode) -> ShouldIncludeExtraClockCycles {
         if readFlag(.negative) {
-            setPcFromRelativeAddress()
+            pc = addressAbsolute
         }
         return false
     }
@@ -185,7 +185,7 @@ private extension CPU {
     // Branch on result not zero.
     func bne(addressMode: AddressMode) -> ShouldIncludeExtraClockCycles {
         if !readFlag(.zero) {
-            setPcFromRelativeAddress()
+            pc = addressAbsolute
         }
         return false
     }
@@ -193,7 +193,7 @@ private extension CPU {
     // Branch on result plus.
     func bpl(addressMode: AddressMode) -> ShouldIncludeExtraClockCycles {
         if !readFlag(.negative) {
-            setPcFromRelativeAddress()
+            pc = addressAbsolute
         }
         return false
     }
@@ -221,7 +221,7 @@ private extension CPU {
     // Branch on overflow clear.
     func bvc(addressMode: AddressMode) -> ShouldIncludeExtraClockCycles {
         if !readFlag(.overflow) {
-            setPcFromRelativeAddress()
+            pc = addressAbsolute
         }
         return false
     }
@@ -229,7 +229,7 @@ private extension CPU {
     // Branch on overflow set.
     func bvs(addressMode: AddressMode) -> ShouldIncludeExtraClockCycles {
         if readFlag(.overflow) {
-            setPcFromRelativeAddress()
+            pc = addressAbsolute
         }
         return false
     }
@@ -664,18 +664,6 @@ private extension CPU {
 // MARK: - Private methods
 
 private extension CPU {
-    func setPcFromRelativeAddress() {
-        // `addressRelative` may be a negative number, so make sure we don't overflow.
-        let result = pc.addingReportingOverflow(addressRelative)
-
-        // If page boundry is crossed, another clock cycle will be used.
-        if result.overflow {
-            // TODO: Increment clock cycles, when/if needed to keep track of this.
-        }
-
-        pc = result.partialValue
-    }
-
     func compareMemoryAgainst(_ value: UInt8) {
         let memory = readByte(addressAbsolute)
 

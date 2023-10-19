@@ -12,10 +12,8 @@ class CPU {
     var flags: UInt8 = 0x00
     var clockCycles: Int = 0
 
-    // These are separated, but they can probably be combined into a single variable. Check what's possible.
-    // Maybe the `AddressMode` can return an adress instead?
+    /// Points to the address where an instruction either reads a value from, or branches to.
     var addressAbsolute: UInt16 = 0x0000
-    var addressRelative: UInt16 = 0x0000
 
     // MARK: - Private properties
 
