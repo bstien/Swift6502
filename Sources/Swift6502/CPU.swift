@@ -52,8 +52,12 @@ class CPU {
 
             let opcode = Self.opcodes[Int(opcodeByte)]
 
-            setupAddressing(using: opcode.1)
-            perform(instruction: opcode.0, addressMode: opcode.1)
+            let extraClockCycles = setupAddressing(using: opcode.1)
+            let shouldIncludeExtraClockCycles = perform(instruction: opcode.0, addressMode: opcode.1)
+
+            // Increase clock cycles and add extra cycles, if needed.
+            // Extra cycles usually happens if a page boundry was crossed.
+            clockCycles += opcode.2 + (shouldIncludeExtraClockCycles ? extraClockCycles : 0)
         }
     }
 
