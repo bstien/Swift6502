@@ -1,10 +1,12 @@
 import Foundation
 
 extension CPU {
+    typealias ShouldIncludeExtraClockCycles = Bool
+
     @discardableResult
-    func perform(instruction: Instruction, addressMode: AddressMode) -> UInt8 {
+    func perform(instruction: Instruction, addressMode: AddressMode) -> ShouldIncludeExtraClockCycles {
         switch instruction {
-        case .xxx: 0
+        case .xxx: false
         case .adc: adc(addressMode: addressMode)
         case .and: and(addressMode: addressMode)
         case .asl: asl(addressMode: addressMode)
@@ -67,7 +69,7 @@ extension CPU {
 
 private extension CPU {
     // Add memory to accumulator with carry.
-    func adc(addressMode: AddressMode) -> UInt8 {
+    func adc(addressMode: AddressMode) -> ShouldIncludeExtraClockCycles {
         // Overflow using `UInt8` results in an exception being thrown.
         // "Cheat" and use `UInt16` when adding instead.
         let valueToAdd = readByte(addressAbsolute).asWord + readFlag(.carry).value.asWord
@@ -90,11 +92,11 @@ private extension CPU {
 
         acc = UInt8(newValue & 0xFF)
 
-        return 1
+        return true
     }
 
     // AND memory with accumulator.
-    func and(addressMode: AddressMode) -> UInt8 {
+    func and(addressMode: AddressMode) -> ShouldIncludeExtraClockCycles {
         let value = readByte(addressAbsolute)
 
         acc = acc & value
@@ -102,11 +104,11 @@ private extension CPU {
         setZeroFlag(using: acc)
         setNegativeFlag(using: acc)
 
-        return 1
+        return true
     }
 
     // Shift left one bit (memory or accumulator).
-    func asl(addressMode: AddressMode) -> UInt8 {
+    func asl(addressMode: AddressMode) -> ShouldIncludeExtraClockCycles {
         var value: UInt16
 
         // If addressMode is `implied` we read from, and write back to, accumulator.
@@ -131,35 +133,35 @@ private extension CPU {
             writeByte(addressAbsolute, data: byte)
         }
 
-        return 0
+        return false
     }
 
     // Branch on carry clear.
-    func bcc(addressMode: AddressMode) -> UInt8 {
+    func bcc(addressMode: AddressMode) -> ShouldIncludeExtraClockCycles {
         if !readFlag(.carry) {
             setPcFromRelativeAddress()
         }
-        return 0
+        return false
     }
 
     // Branch on carry set.
-    func bcs(addressMode: AddressMode) -> UInt8 {
+    func bcs(addressMode: AddressMode) -> ShouldIncludeExtraClockCycles {
         if readFlag(.carry) {
             setPcFromRelativeAddress()
         }
-        return 0
+        return false
     }
 
     // Branch on result zero.
-    func beq(addressMode: AddressMode) -> UInt8 {
+    func beq(addressMode: AddressMode) -> ShouldIncludeExtraClockCycles {
         if readFlag(.zero) {
             setPcFromRelativeAddress()
         }
-        return 0
+        return false
     }
 
     // Test bits in memory with accumulator.
-    func bit(addressMode: AddressMode) -> UInt8 {
+    func bit(addressMode: AddressMode) -> ShouldIncludeExtraClockCycles {
         let memory = readByte(addressAbsolute)
 
         // Set zero flag if AND == 0.
@@ -169,35 +171,35 @@ private extension CPU {
         setNegativeFlag(using: memory)
         setFlag(.overflow, memory & 0x40 == 0x40)
 
-        return 0
+        return false
     }
 
     // Branch on result minus.
-    func bmi(addressMode: AddressMode) -> UInt8 {
+    func bmi(addressMode: AddressMode) -> ShouldIncludeExtraClockCycles {
         if readFlag(.negative) {
             setPcFromRelativeAddress()
         }
-        return 0
+        return false
     }
 
     // Branch on result not zero.
-    func bne(addressMode: AddressMode) -> UInt8 {
+    func bne(addressMode: AddressMode) -> ShouldIncludeExtraClockCycles {
         if !readFlag(.zero) {
             setPcFromRelativeAddress()
         }
-        return 0
+        return false
     }
 
     // Branch on result plus.
-    func bpl(addressMode: AddressMode) -> UInt8 {
+    func bpl(addressMode: AddressMode) -> ShouldIncludeExtraClockCycles {
         if !readFlag(.negative) {
             setPcFromRelativeAddress()
         }
-        return 0
+        return false
     }
 
     // Force break.
-    func brk(addressMode: AddressMode) -> UInt8 {
+    func brk(addressMode: AddressMode) -> ShouldIncludeExtraClockCycles {
         // Push PC onto stack.
         pc += 1
         pushToStack(word: pc)
@@ -213,89 +215,89 @@ private extension CPU {
         // Set PC to contain address in interrupt vector at 0xFFFE
         pc = readWord(0xFFFE)
 
-        return 0
+        return false
     }
 
     // Branch on overflow clear.
-    func bvc(addressMode: AddressMode) -> UInt8 {
+    func bvc(addressMode: AddressMode) -> ShouldIncludeExtraClockCycles {
         if !readFlag(.overflow) {
             setPcFromRelativeAddress()
         }
-        return 0
+        return false
     }
 
     // Branch on overflow set.
-    func bvs(addressMode: AddressMode) -> UInt8 {
+    func bvs(addressMode: AddressMode) -> ShouldIncludeExtraClockCycles {
         if readFlag(.overflow) {
             setPcFromRelativeAddress()
         }
-        return 0
+        return false
     }
 
     // Clear carry flag.
-    func clc(addressMode: AddressMode) -> UInt8 {
+    func clc(addressMode: AddressMode) -> ShouldIncludeExtraClockCycles {
         setFlag(.carry, false)
-        return 0
+        return false
     }
 
     // Clear decimal mode.
-    func cld(addressMode: AddressMode) -> UInt8 {
+    func cld(addressMode: AddressMode) -> ShouldIncludeExtraClockCycles {
         setFlag(.decimal, false)
-        return 0
+        return false
     }
 
     // Clear interrupt disable bit.
-    func cli(addressMode: AddressMode) -> UInt8 {
+    func cli(addressMode: AddressMode) -> ShouldIncludeExtraClockCycles {
         setFlag(.interrupt, false)
-        return 0
+        return false
     }
 
     // Clear overflow flag.
-    func clv(addressMode: AddressMode) -> UInt8 {
+    func clv(addressMode: AddressMode) -> ShouldIncludeExtraClockCycles {
         setFlag(.overflow, false)
-        return 0
+        return false
     }
 
     // Compare memory with accumulator.
-    func cmp(addressMode: AddressMode) -> UInt8 {
+    func cmp(addressMode: AddressMode) -> ShouldIncludeExtraClockCycles {
         compareMemoryAgainst(acc)
-        return 1
+        return true
     }
 
     // Compare memory with X.
-    func cpx(addressMode: AddressMode) -> UInt8 {
+    func cpx(addressMode: AddressMode) -> ShouldIncludeExtraClockCycles {
         compareMemoryAgainst(xReg)
-        return 0
+        return false
     }
 
     // Compare memory with Y.
-    func cpy(addressMode: AddressMode) -> UInt8 {
+    func cpy(addressMode: AddressMode) -> ShouldIncludeExtraClockCycles {
         compareMemoryAgainst(yReg)
-        return 0
+        return false
     }
 
     // Decrement memory by one.
-    func dec(addressMode: AddressMode) -> UInt8 {
+    func dec(addressMode: AddressMode) -> ShouldIncludeExtraClockCycles {
         let value = readByte(addressAbsolute)
         let decremented = perform(.dec, on: value)
         writeByte(addressAbsolute, data: decremented)
-        return 0
+        return false
     }
 
     // Decrement X by one.
-    func dex(addressMode: AddressMode) -> UInt8 {
+    func dex(addressMode: AddressMode) -> ShouldIncludeExtraClockCycles {
         xReg = perform(.dec, on: xReg)
-        return 0
+        return false
     }
 
     // Decrement Y by one.
-    func dey(addressMode: AddressMode) -> UInt8 {
+    func dey(addressMode: AddressMode) -> ShouldIncludeExtraClockCycles {
         yReg = perform(.dec, on: yReg)
-        return 0
+        return false
     }
 
     // Exclusive-OR memory with accumulator.
-    func eor(addressMode: AddressMode) -> UInt8 {
+    func eor(addressMode: AddressMode) -> ShouldIncludeExtraClockCycles {
         let memory = readByte(addressAbsolute)
 
         acc = acc ^ memory
@@ -303,76 +305,76 @@ private extension CPU {
         setZeroFlag(using: acc)
         setNegativeFlag(using: acc)
 
-        return 1
+        return true
     }
 
     // Increment memory by one.
-    func inc(addressMode: AddressMode) -> UInt8 {
+    func inc(addressMode: AddressMode) -> ShouldIncludeExtraClockCycles {
         let value = readByte(addressAbsolute)
         let incremented = perform(.inc, on: value)
         writeByte(addressAbsolute, data: incremented)
-        return 0
+        return false
     }
 
     // Increment X by one.
-    func inx(addressMode: AddressMode) -> UInt8 {
+    func inx(addressMode: AddressMode) -> ShouldIncludeExtraClockCycles {
         xReg = perform(.inc, on: xReg)
-        return 0
+        return false
     }
 
     // Increment Y by one.
-    func iny(addressMode: AddressMode) -> UInt8 {
+    func iny(addressMode: AddressMode) -> ShouldIncludeExtraClockCycles {
         yReg = perform(.inc, on: yReg)
-        return 0
+        return false
     }
 
     // Jump to new location.
-    func jmp(addressMode: AddressMode) -> UInt8 {
+    func jmp(addressMode: AddressMode) -> ShouldIncludeExtraClockCycles {
         pc = addressAbsolute
-        return 0
+        return false
     }
 
     // Jump to new location, saving return address.
-    func jsr(addressMode: AddressMode) -> UInt8 {
+    func jsr(addressMode: AddressMode) -> ShouldIncludeExtraClockCycles {
         pc -= 1
         pushToStack(word: pc)
         pc = addressAbsolute
 
-        return 0
+        return false
     }
 
     // Load accumulator.
-    func lda(addressMode: AddressMode) -> UInt8 {
+    func lda(addressMode: AddressMode) -> ShouldIncludeExtraClockCycles {
         acc = readByte(addressAbsolute)
 
         setZeroFlag(using: acc)
         setNegativeFlag(using: acc)
 
-        return 0
+        return false
     }
 
     // Load X register.
-    func ldx(addressMode: AddressMode) -> UInt8 {
+    func ldx(addressMode: AddressMode) -> ShouldIncludeExtraClockCycles {
         xReg = readByte(addressAbsolute)
 
         setZeroFlag(using: xReg)
         setNegativeFlag(using: xReg)
 
-        return 0
+        return false
     }
 
     // Load Y register.
-    func ldy(addressMode: AddressMode) -> UInt8 {
+    func ldy(addressMode: AddressMode) -> ShouldIncludeExtraClockCycles {
         yReg = readByte(addressAbsolute)
 
         setZeroFlag(using: yReg)
         setNegativeFlag(using: yReg)
 
-        return 0
+        return false
     }
 
     // Logical shift right (shifts in a zero bit on the left).
-    func lsr(addressMode: AddressMode) -> UInt8 {
+    func lsr(addressMode: AddressMode) -> ShouldIncludeExtraClockCycles {
         var value: UInt16
 
         // If addressMode is `implied` we read from, and write back to, accumulator.
@@ -401,18 +403,18 @@ private extension CPU {
             writeByte(addressAbsolute, data: byte)
         }
 
-        return 0
+        return false
     }
 
     // No operation.
-    func nop(addressMode: AddressMode) -> UInt8 {
+    func nop(addressMode: AddressMode) -> ShouldIncludeExtraClockCycles {
         // TODO: Revisit NOPs that potentially uses more clock cycles.
         // I believe there exists a few NOP opcodes that will spend N clock cycles doing nothing.
-        return 0
+        return false
     }
 
     // OR memory with accumulator.
-    func ora(addressMode: AddressMode) -> UInt8 {
+    func ora(addressMode: AddressMode) -> ShouldIncludeExtraClockCycles {
         let value = readByte(addressAbsolute)
 
         acc = acc | value
@@ -420,39 +422,39 @@ private extension CPU {
         setZeroFlag(using: acc)
         setNegativeFlag(using: acc)
 
-        return 1
+        return true
     }
 
     // Push accumulator on stack.
-    func pha(addressMode: AddressMode) -> UInt8 {
+    func pha(addressMode: AddressMode) -> ShouldIncludeExtraClockCycles {
         pushToStack(byte: acc)
-        return 0
+        return false
     }
 
     // Push processor status on stack.
-    func php(addressMode: AddressMode) -> UInt8 {
+    func php(addressMode: AddressMode) -> ShouldIncludeExtraClockCycles {
         pushToStack(byte: flags)
-        return 0
+        return false
     }
 
     // Pull accumulator from stack.
-    func pla(addressMode: AddressMode) -> UInt8 {
+    func pla(addressMode: AddressMode) -> ShouldIncludeExtraClockCycles {
         acc = pullByteFromStack()
 
         setZeroFlag(using: acc)
         setNegativeFlag(using: acc)
 
-        return 0
+        return false
     }
 
     // Pull processor status from stack.
-    func plp(addressMode: AddressMode) -> UInt8 {
+    func plp(addressMode: AddressMode) -> ShouldIncludeExtraClockCycles {
         flags = pullByteFromStack()
-        return 0
+        return false
     }
 
     // Rotate one bit left (memory or accumulator).
-    func rol(addressMode: AddressMode) -> UInt8 {
+    func rol(addressMode: AddressMode) -> ShouldIncludeExtraClockCycles {
         var value: UInt16
 
         // If addressMode is `implied` we read from, and write back to, accumulator.
@@ -477,11 +479,11 @@ private extension CPU {
             writeByte(addressAbsolute, data: byte)
         }
 
-        return 0
+        return false
     }
 
     // Rotate one bit right (memory or accumulator).
-    func ror(addressMode: AddressMode) -> UInt8 {
+    func ror(addressMode: AddressMode) -> ShouldIncludeExtraClockCycles {
         var value: UInt16
 
         // If addressMode is `implied` we read from, and write back to, accumulator.
@@ -510,23 +512,23 @@ private extension CPU {
             writeByte(addressAbsolute, data: byte)
         }
 
-        return 0
+        return false
     }
 
     // Return from interrupt.
-    func rti(addressMode: AddressMode) -> UInt8 {
+    func rti(addressMode: AddressMode) -> ShouldIncludeExtraClockCycles {
         flags = pullByteFromStack()
         pc = pullWordFromStack()
 
-        return 0
+        return false
     }
 
     // Return from subroutine.
-    func rts(addressMode: AddressMode) -> UInt8 {
+    func rts(addressMode: AddressMode) -> ShouldIncludeExtraClockCycles {
         pc = pullWordFromStack()
         pc += 1
 
-        return 0
+        return false
     }
 
     /// Subtract memory from accumulator with borrow.
@@ -535,7 +537,7 @@ private extension CPU {
     /// - https://www.righto.com/2012/12/the-6502-overflow-flag-explained.html
     /// - http://forum.6502.org/viewtopic.php?f=1&t=7444
     /// - https://www.atariarchives.org/2bml/chapter_10.php
-    func sbc(addressMode: AddressMode) -> UInt8 {
+    func sbc(addressMode: AddressMode) -> ShouldIncludeExtraClockCycles {
         let memory = readByte(addressAbsolute)
         
         // Flip the bits of memory so we get a negative number.
@@ -563,99 +565,99 @@ private extension CPU {
 
         acc = UInt8(newValue & 0xFF)
 
-        return 0
+        return false
     }
 
     // Set carry flag.
-    func sec(addressMode: AddressMode) -> UInt8 {
+    func sec(addressMode: AddressMode) -> ShouldIncludeExtraClockCycles {
         setFlag(.carry, true)
-        return 0
+        return false
     }
 
     // Set decimal flag.
-    func sed(addressMode: AddressMode) -> UInt8 {
+    func sed(addressMode: AddressMode) -> ShouldIncludeExtraClockCycles {
         setFlag(.decimal, true)
-        return 0
+        return false
     }
 
     // Set interrupt disable status.
-    func sei(addressMode: AddressMode) -> UInt8 {
+    func sei(addressMode: AddressMode) -> ShouldIncludeExtraClockCycles {
         setFlag(.interrupt, true)
-        return 0
+        return false
     }
 
     // Store accumulator in memory.
-    func sta(addressMode: AddressMode) -> UInt8 {
+    func sta(addressMode: AddressMode) -> ShouldIncludeExtraClockCycles {
         writeByte(addressAbsolute, data: acc)
-        return 0
+        return false
     }
 
     // Store X in memory.
-    func stx(addressMode: AddressMode) -> UInt8 {
+    func stx(addressMode: AddressMode) -> ShouldIncludeExtraClockCycles {
         writeByte(addressAbsolute, data: xReg)
-        return 0
+        return false
     }
 
     // Store Y in memory.
-    func sty(addressMode: AddressMode) -> UInt8 {
+    func sty(addressMode: AddressMode) -> ShouldIncludeExtraClockCycles {
         writeByte(addressAbsolute, data: yReg)
-        return 0
+        return false
     }
 
     // Transfer accumulator to X.
-    func tax(addressMode: AddressMode) -> UInt8 {
+    func tax(addressMode: AddressMode) -> ShouldIncludeExtraClockCycles {
         xReg = acc
 
         setZeroFlag(using: xReg)
         setNegativeFlag(using: xReg)
 
-        return 0
+        return false
     }
 
     // Transfer accumulator to Y.
-    func tay(addressMode: AddressMode) -> UInt8 {
+    func tay(addressMode: AddressMode) -> ShouldIncludeExtraClockCycles {
         yReg = acc
 
         setZeroFlag(using: yReg)
         setNegativeFlag(using: yReg)
 
-        return 0
+        return false
     }
 
     // Transfer stack pointer to X.
-    func tsx(addressMode: AddressMode) -> UInt8 {
+    func tsx(addressMode: AddressMode) -> ShouldIncludeExtraClockCycles {
         xReg = stackPointer
 
         setZeroFlag(using: xReg)
         setNegativeFlag(using: xReg)
 
-        return 0
+        return false
     }
 
     // Transfer X to accumulator.
-    func txa(addressMode: AddressMode) -> UInt8 {
+    func txa(addressMode: AddressMode) -> ShouldIncludeExtraClockCycles {
         acc = xReg
 
         setZeroFlag(using: acc)
         setNegativeFlag(using: acc)
 
-        return 0
+        return false
     }
 
     // Transfer X to stack pointer.
-    func txs(addressMode: AddressMode) -> UInt8 {
+    func txs(addressMode: AddressMode) -> ShouldIncludeExtraClockCycles {
         stackPointer = xReg
-        return 0
+        return false
     }
 
     // Transfer Y to accumulator.
-    func tya(addressMode: AddressMode) -> UInt8 {
+    func tya(addressMode: AddressMode) -> ShouldIncludeExtraClockCycles {
         acc = yReg
 
         setZeroFlag(using: acc)
         setNegativeFlag(using: acc)
 
-        return 0
+        return false
     }
 }
 
