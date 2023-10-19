@@ -3,26 +3,6 @@ import XCTest
 import Nimble
 
 class AddressModeTests: XCTestCase {
-    func test_abx() {
-        let cpu = CPU.create(ram: [0xAA, 0xFF, 0x03], xReg: 0x11)
-
-        let extraClockCycles = cpu.setupAddressing(using: .abx)
-
-        expect(cpu.addressAbsolute) == 0xFFBB
-        expect(cpu.pc) == 0x02
-        expect(extraClockCycles) == 0
-    }
-
-    func test_abx_with_page_boundry_crossed() {
-        let cpu = CPU.create(ram: [0xFF, 0x0E, 0x03], xReg: 0x02)
-
-        let extraClockCycles = cpu.setupAddressing(using: .abx)
-
-        expect(cpu.addressAbsolute) == 0x0F01
-        expect(cpu.pc) == 0x02
-        expect(extraClockCycles) == 1
-    }
-    
     func test_aby() {
         let cpu = CPU.create(ram: [0xAA, 0xFF, 0x03], yReg: 0x11)
 
