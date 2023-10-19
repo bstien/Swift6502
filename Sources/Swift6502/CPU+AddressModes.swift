@@ -123,14 +123,13 @@ private extension CPU {
 
     /// Absolute, with Y offset.
     private func aby() -> ExtraClockCycles {
-        let lowByte = readByte(pc)
-        let highByte = readByte(pc &+ 1)
+        let addressRead = readWord(pc)
         pc += 2
 
-        addressAbsolute = .createWord(highByte: highByte, lowByte: lowByte) &+ yReg.asWord
+        addressAbsolute = addressRead &+ yReg.asWord
 
         // 1 extra clock cycle is used if page boundry is crossed.
-        if ((addressAbsolute & 0xFF00) != (highByte.asWord << 8)) {
+        if !addressRead.isSamePage(as: addressAbsolute) {
             return 1
         }
 
