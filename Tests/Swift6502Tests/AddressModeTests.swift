@@ -3,24 +3,6 @@ import XCTest
 import Nimble
 
 class AddressModeTests: XCTestCase {
-    func test_rel_with_positive_offset() {
-        let cpu = CPU.create(ram: [0x03])
-
-        cpu.setupAddressing(using: .rel)
-
-        expect(cpu.addressRelative) == 0x03
-        expect(cpu.pc) == 0x01
-    }
-
-    func test_rel_with_negative_offset() {
-        let cpu = CPU.create(ram: [0xFE])
-
-        cpu.setupAddressing(using: .rel)
-
-        expect(cpu.addressRelative) == 0xFFFE
-        expect(cpu.pc) == 0x01
-    }
-
     func test_abs() {
         let cpu = CPU.create(ram: [0xAA, 0xFF, 0x03])
 

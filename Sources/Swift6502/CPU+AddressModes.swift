@@ -75,15 +75,21 @@ private extension CPU {
     }
 
     /// Relative.
+    ///
+    /// Relative addressing allows for a navigating to an address within -128 to +127 of the program counter.
     private func rel() -> ExtraClockCycles {
         addressRelative = readByte(pc).asWord
         pc += 1
 
-        // Relative addressing allows for a navigating to an address within -128 to +127 of `pc`.
         // If the relative offset is negative, we need to flip the bits so a "subtraction" will occur.
         if addressRelative & 0x80 == 0x80 {
             addressRelative |= 0xFF00
         }
+
+        // TODO: Move absolute address calculation here.
+        // This addressing mode will always require 1 extra cycle, but can
+        // require 2 extra if page boundry is crossed.
+        // We should do this here, rather than when performing the instruction.
 
         return 0
     }
