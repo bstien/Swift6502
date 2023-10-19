@@ -51,7 +51,7 @@ private extension CPU {
 
     /// Zero page, with X offset.
     private func zpx() -> ExtraClockCycles {
-        addressAbsolute = (readByte(pc) + xReg).asWord
+        addressAbsolute = (readByte(pc) &+ xReg).asWord
         pc += 1
         addressAbsolute &= 0x00FF
         return 0
