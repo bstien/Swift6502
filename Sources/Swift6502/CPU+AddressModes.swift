@@ -189,15 +189,3 @@ private extension CPU {
         return 0
     }
 }
-
-extension UInt8 {
-    var asWord: UInt16 {
-        UInt16(self)
-    }
-}
-
-extension UInt16 {
-    static func createWord(highByte: UInt8, lowByte: UInt8) -> UInt16 {
-        (highByte.asWord << 8) | lowByte.asWord
-    }
-}
