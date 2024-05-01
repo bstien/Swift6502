@@ -671,7 +671,7 @@ private extension CPU {
         setFlag(.carry, value >= memory)
 
         // Set flags based on difference between value and memory.
-        let diff = value.subtractingReportingOverflow(memory).partialValue
+        let diff = value &- memory
         setZeroFlag(using: diff)
         setNegativeFlag(using: diff)
     }
@@ -689,9 +689,9 @@ private extension CPU {
         let result: UInt8
         switch op {
         case .inc:
-            result = value.addingReportingOverflow(1).partialValue
+            result = value &+ 1
         case .dec:
-            result = value.subtractingReportingOverflow(1).partialValue
+            result = value &- 1
         }
 
         setZeroFlag(using: result)
@@ -706,7 +706,7 @@ private extension CPU {
 private extension CPU {
     func pushToStack(byte: UInt8) {
         writeByte(0x0100 + stackPointer.asWord, data: byte)
-        stackPointer = stackPointer.subtractingReportingOverflow(1).partialValue
+        stackPointer = stackPointer &- 1
     }
 
     func pushToStack(word: UInt16) {
@@ -715,7 +715,7 @@ private extension CPU {
     }
 
     func pullByteFromStack() -> UInt8 {
-        stackPointer = stackPointer.addingReportingOverflow(1).partialValue
+        stackPointer = stackPointer &+ 1
         return readByte(0x0100 + stackPointer.asWord)
     }
 
